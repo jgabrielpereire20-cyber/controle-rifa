@@ -13,11 +13,8 @@
     :root {
       --primary: #11665f;
       --bg: #f5f4ed;
-      --card: #ffffff;
       --text: #202b29;
-      --muted: #687672;
       --border: #dfe5df;
-      --red: #b42318;
     }
 
     * { box-sizing: border-box; }
@@ -38,18 +35,14 @@
     header h1 { margin: 0 0 6px; font-size: 25px; }
     header p { margin: 0; opacity: .9; font-size: 14px; }
 
-    main {
-      width: min(100% - 24px, 900px);
-      margin: 20px auto;
-    }
+    main { width: min(100% - 24px, 900px); margin: 20px auto; }
 
     .card {
-      background: var(--card);
+      background: white;
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 18px;
       margin-bottom: 16px;
-      box-shadow: 0 3px 12px #172b2408;
     }
 
     h2 { font-size: 19px; margin: 0 0 16px; }
@@ -79,10 +72,10 @@
       margin-top: 12px;
     }
 
-    button:disabled { opacity: .55; cursor: wait; }
+    button:disabled { opacity: .55; }
     button.secondary { background: #e5efeb; color: var(--primary); }
-    button.danger { background: #fff0ee; color: var(--red); }
-    button.small { width: auto; min-height: 36px; padding: 7px 10px; margin: 4px 4px 0 0; font-size: 13px; }
+    button.danger { background: #fff0ee; color: #b42318; }
+    button.small { width: auto; min-height: 36px; padding: 7px 10px; font-size: 13px; }
 
     .hidden { display: none !important; }
 
@@ -98,20 +91,16 @@
       padding: 15px;
       border: 1px solid var(--border);
       border-radius: 14px;
-      min-width: 0;
+      overflow-wrap: anywhere;
     }
 
-    .stat span { color: var(--muted); font-size: 12px; display: block; }
-    .stat strong { font-size: 21px; display: block; margin-top: 7px; overflow-wrap: anywhere; }
+    .stat span { color: #687672; font-size: 12px; display: block; }
+    .stat strong { font-size: 20px; display: block; margin-top: 7px; }
 
-    .participant {
-      padding: 14px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
+    .participant { padding: 14px 0; border-bottom: 1px solid var(--border); }
     .participant:last-child { border-bottom: 0; }
-    .participant strong { overflow-wrap: anywhere; }
-    .details { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.6; }
+
+    .details { font-size: 13px; color: #687672; margin-top: 6px; line-height: 1.6; overflow-wrap: anywhere; }
 
     .status {
       display: inline-block;
@@ -134,7 +123,7 @@
 
     .error { background: #fff0ee; color: #9e2018; }
     .success { background: #e1f5e8; color: #17663a; }
-    .muted { color: var(--muted); font-size: 13px; }
+    .muted { color: #687672; font-size: 13px; }
     .draw-result { text-align: center; padding: 20px 8px; }
     .draw-result strong { font-size: 25px; color: var(--primary); display: block; margin-top: 8px; }
 
@@ -148,7 +137,7 @@
 <body>
   <header>
     <h1>🎟️ Controle da Rifa</h1>
-    <p>Seu painel privado de participantes e pagamentos</p>
+    <p>Seu painel de participantes e pagamentos</p>
   </header>
 
   <main>
@@ -156,68 +145,95 @@
 
     <section id="loginSection" class="card">
       <h2>Entrar no painel</h2>
-      <p class="muted">Use o e-mail e a senha cadastrados no Supabase.</p>
+      <p class="muted">Entre com seu e-mail e sua senha cadastrados no Supabase.</p>
+
       <form id="loginForm">
         <label for="email">E-mail</label>
         <input id="email" type="email" autocomplete="username" required>
+
         <label for="password">Senha</label>
         <input id="password" type="password" autocomplete="current-password" required>
+
         <button id="loginButton" type="submit">Entrar</button>
       </form>
     </section>
 
     <section id="appSection" class="hidden">
-      <div class="card">
+      <section class="card">
         <button id="logoutButton" class="secondary" type="button">Sair da conta</button>
-      </div>
+      </section>
 
       <div class="stats">
-        <div class="stat"><span>Participantes</span><strong id="totalPeople">0</strong></div>
-        <div class="stat"><span>Valor cadastrado</span><strong id="totalAmount">R$ 0,00</strong></div>
-        <div class="stat"><span>Recebido</span><strong id="paidAmount">R$ 0,00</strong></div>
-        <div class="stat"><span>A receber</span><strong id="pendingAmount">R$ 0,00</strong></div>
+        <div class="stat">
+          <span>Participantes</span>
+          <strong id="totalPeople">0</strong>
+        </div>
+        <div class="stat">
+          <span>Valor cadastrado</span>
+          <strong id="totalAmount">R$ 0,00</strong>
+        </div>
+        <div class="stat">
+          <span>Recebido</span>
+          <strong id="paidAmount">R$ 0,00</strong>
+        </div>
+        <div class="stat">
+          <span>A receber</span>
+          <strong id="pendingAmount">R$ 0,00</strong>
+        </div>
       </div>
 
       <section class="card">
         <h2>Cadastrar participante</h2>
+
         <form id="participantForm">
           <div class="form-grid">
             <div>
               <label for="name">Nome completo</label>
               <input id="name" maxlength="120" required>
             </div>
+
             <div>
               <label for="phone">Telefone (opcional)</label>
               <input id="phone" type="tel" maxlength="30">
             </div>
+
             <div>
               <label for="amount">Valor combinado (R$)</label>
               <input id="amount" type="number" min="0.01" step="0.01" required>
             </div>
+
             <div>
               <label for="quantity">Quantidade de participações</label>
               <input id="quantity" type="number" min="1" step="1" value="1" required>
             </div>
           </div>
+
           <label style="display:flex;align-items:center;gap:8px">
             <input id="paidInput" type="checkbox" style="width:20px;min-height:20px">
             Pagamento já realizado
           </label>
+
           <button id="saveButton" type="submit">Cadastrar participante</button>
         </form>
       </section>
 
       <section class="card">
         <h2>Participantes cadastrados</h2>
-        <label for="search">Pesquisar por nome ou telefone</label>
-        <input id="search" type="search" placeholder="Digite para pesquisar...">
+        <label for="search">Pesquisar participante</label>
+        <input id="search" type="search" placeholder="Digite um nome ou telefone">
+
         <div id="participantList" aria-live="polite"></div>
+
         <button id="refreshButton" class="secondary" type="button">Atualizar lista</button>
       </section>
 
       <section class="card">
         <h2>Sorteio por nome</h2>
-        <p class="muted">Será sorteado um participante entre os que estiverem marcados como pagos. Cada participante terá uma chance, independentemente da quantidade cadastrada.</p>
+        <p class="muted">
+          O sorteio abaixo dá uma chance por participante pago,
+          independentemente da quantidade cadastrada.
+        </p>
+
         <button id="drawButton" type="button">Sortear nome</button>
         <div id="drawResult" class="draw-result"></div>
       </section>
@@ -225,20 +241,18 @@
   </main>
 
   <script>
-    // PREENCHA ESTES DOIS VALORES COM OS DADOS DO SEU PROJETO SUPABASE.
-    // Use somente a chave publicável (anon/publishable), nunca a service_role.
-    const SUPABASE_URL = "COLE_A_URL_DO_SEU_PROJETO";
-    const SUPABASE_KEY = "COLE_SUA_CHAVE_PUBLICA";
+    // Dados do seu projeto Supabase
+    const SUPABASE_URL = "https://isffremdesipluzzlgul.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_zHTe78sOa4RSk684gqQFrw_A2xKkhAX";
 
-    const $ = (id) => document.getElementById(id);
+    const $ = id => document.getElementById(id);
+
     let db = null;
     let participants = [];
-    let busy = false;
 
     function showMessage(text, type = "error") {
-      const box = $("message");
-      box.textContent = text;
-      box.className = "message " + type;
+      $("message").textContent = text;
+      $("message").className = "message " + type;
     }
 
     function clearMessage() {
@@ -253,10 +267,9 @@
       });
     }
 
-    function setBusy(value) {
-      busy = value;
-      document.querySelectorAll("button").forEach((button) => {
-        button.disabled = value;
+    function setBusy(busy) {
+      document.querySelectorAll("button").forEach(button => {
+        button.disabled = busy;
       });
     }
 
@@ -272,13 +285,14 @@
 
     async function loadParticipants() {
       clearMessage();
+
       const { data, error } = await db
         .from("participants")
         .select("*")
         .order("created_at", { ascending: false });
 
       if (error) {
-        showMessage("Não foi possível carregar os participantes: " + error.message);
+        showMessage("Erro ao carregar dados: " + error.message);
         return;
       }
 
@@ -288,6 +302,7 @@
 
     function render() {
       const total = participants.reduce((sum, p) => sum + Number(p.amount), 0);
+
       const received = participants
         .filter(p => p.paid)
         .reduce((sum, p) => sum + Number(p.amount), 0);
@@ -298,6 +313,7 @@
       $("pendingAmount").textContent = money(total - received);
 
       const term = $("search").value.trim().toLocaleLowerCase("pt-BR");
+
       const filtered = participants.filter(p =>
         p.name.toLocaleLowerCase("pt-BR").includes(term) ||
         (p.phone || "").toLocaleLowerCase("pt-BR").includes(term)
@@ -310,8 +326,8 @@
         const empty = document.createElement("p");
         empty.className = "muted";
         empty.textContent = participants.length
-          ? "Nenhum participante corresponde à pesquisa."
-          : "Ainda não há participantes cadastrados.";
+          ? "Nenhum participante encontrado."
+          : "Nenhum participante cadastrado ainda.";
         list.appendChild(empty);
         return;
       }
@@ -335,11 +351,12 @@
           "Telefone: " + (p.phone || "Não informado") +
           " · Valor: " + money(p.amount) +
           " · Participações: " + p.quantity;
+
         item.appendChild(details);
 
         const toggle = document.createElement("button");
         toggle.className = "small secondary";
-        toggle.textContent = p.paid ? "Marcar como pendente" : "Marcar como pago";
+        toggle.textContent = p.paid ? "Marcar pendente" : "Marcar pago";
         toggle.addEventListener("click", () => updatePaid(p.id, !p.paid));
         item.appendChild(toggle);
 
@@ -355,12 +372,16 @@
 
     async function updatePaid(id, paid) {
       clearMessage();
+
       const { error } = await db
         .from("participants")
         .update({ paid })
         .eq("id", id);
 
-      if (error) return showMessage("Erro ao atualizar pagamento: " + error.message);
+      if (error) {
+        showMessage("Erro ao atualizar pagamento: " + error.message);
+        return;
+      }
 
       showMessage("Pagamento atualizado.", "success");
       await loadParticipants();
@@ -370,25 +391,27 @@
       if (!confirm("Deseja realmente excluir " + name + "?")) return;
 
       clearMessage();
+
       const { error } = await db
         .from("participants")
         .delete()
         .eq("id", id);
 
-      if (error) return showMessage("Erro ao excluir: " + error.message);
+      if (error) {
+        showMessage("Erro ao excluir participante: " + error.message);
+        return;
+      }
 
-      $("drawResult").textContent = "";
+      $("drawResult").replaceChildren();
       showMessage("Participante excluído.", "success");
       await loadParticipants();
     }
 
-    $("loginForm").addEventListener("submit", async (event) => {
+    $("loginForm").addEventListener("submit", async event => {
       event.preventDefault();
       clearMessage();
-
-      if (!db) return showMessage("Configure a URL e a chave pública do Supabase no código.");
-
       setBusy(true);
+
       try {
         const { error } = await db.auth.signInWithPassword({
           email: $("email").value.trim(),
@@ -407,15 +430,14 @@
     });
 
     $("logoutButton").addEventListener("click", async () => {
-      if (!db) return;
       await db.auth.signOut();
       participants = [];
-      $("drawResult").textContent = "";
+      $("drawResult").replaceChildren();
       showLogin();
       clearMessage();
     });
 
-    $("participantForm").addEventListener("submit", async (event) => {
+    $("participantForm").addEventListener("submit", async event => {
       event.preventDefault();
       clearMessage();
 
@@ -425,12 +447,19 @@
       const quantity = Number($("quantity").value);
       const paid = $("paidInput").checked;
 
-      if (!name || !Number.isFinite(amount) || amount <= 0 ||
-          !Number.isInteger(quantity) || quantity < 1) {
-        return showMessage("Confira o nome, o valor e a quantidade informados.");
+      if (
+        !name ||
+        !Number.isFinite(amount) ||
+        amount <= 0 ||
+        !Number.isInteger(quantity) ||
+        quantity < 1
+      ) {
+        showMessage("Confira o nome, o valor e a quantidade.");
+        return;
       }
 
       setBusy(true);
+
       try {
         const { error } = await db.from("participants").insert({
           name, phone, amount, quantity, paid
@@ -440,11 +469,12 @@
 
         $("participantForm").reset();
         $("quantity").value = "1";
-        $("drawResult").textContent = "";
+        $("drawResult").replaceChildren();
+
         showMessage("Participante cadastrado com sucesso!", "success");
         await loadParticipants();
       } catch (error) {
-        showMessage("Não foi possível cadastrar: " + error.message);
+        showMessage("Erro ao cadastrar: " + error.message);
       } finally {
         setBusy(false);
       }
@@ -464,41 +494,44 @@
       }
 
       clearMessage();
+
       const winner = eligible[Math.floor(Math.random() * eligible.length)];
 
       const label = document.createElement("span");
       label.textContent = "Nome sorteado";
+
       const name = document.createElement("strong");
       name.textContent = winner.name;
+
       const note = document.createElement("p");
       note.className = "muted";
-      note.textContent = "Confirme a elegibilidade e as regras da rifa antes de anunciar o resultado.";
+      note.textContent =
+        "Confira as regras da rifa antes de anunciar o resultado.";
 
       $("drawResult").append(label, name, note);
     });
 
     async function start() {
-      if (!window.supabase ||
-          SUPABASE_URL.includes("COLE_") ||
-          SUPABASE_KEY.includes("COLE_")) {
-        showLogin();
-        showMessage("O arquivo está pronto. Falta conectar seu projeto Supabase.");
-        return;
-      }
-
       db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      const { data: { session } } = await db.auth.getSession();
-      if (session) {
-        showApp();
-        await loadParticipants();
-      } else {
-        showLogin();
-      }
+      try {
+        const { data: { session }, error } = await db.auth.getSession();
+        if (error) throw error;
 
-      db.auth.onAuthStateChange((_event, session) => {
-        if (!session) showLogin();
-      });
+        if (session) {
+          showApp();
+          await loadParticipants();
+        } else {
+          showLogin();
+        }
+
+        db.auth.onAuthStateChange((_event, session) => {
+          if (!session) showLogin();
+        });
+      } catch (error) {
+        showLogin();
+        showMessage("Erro ao iniciar. Atualize a página e tente novamente.");
+      }
     }
 
     start();
