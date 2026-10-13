@@ -6,9 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#11665f">
   <title>Controle da Rifa</title>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
     :root {
       --primary: #11665f;
@@ -16,27 +14,21 @@
       --text: #202b29;
       --border: #dfe5df;
     }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       background: var(--bg);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
-
     header {
       background: var(--primary);
       color: white;
       padding: 24px 18px;
     }
-
     header h1 { margin: 0 0 6px; font-size: 25px; }
     header p { margin: 0; opacity: .9; font-size: 14px; }
-
     main { width: min(100% - 24px, 900px); margin: 20px auto; }
-
     .card {
       background: white;
       border: 1px solid var(--border);
@@ -44,24 +36,20 @@
       padding: 18px;
       margin-bottom: 16px;
     }
-
     h2 { font-size: 19px; margin: 0 0 16px; }
     label { display: block; font-size: 14px; margin: 12px 0 6px; }
-
     input, button {
       font: inherit;
       width: 100%;
       min-height: 45px;
       border-radius: 10px;
     }
-
     input {
       padding: 10px 12px;
       border: 1px solid #cbd5cf;
       background: white;
       color: var(--text);
     }
-
     button {
       border: 0;
       padding: 11px 14px;
@@ -71,21 +59,23 @@
       cursor: pointer;
       margin-top: 12px;
     }
-
-    button:disabled { opacity: .55; }
+    button:disabled { opacity: .55; cursor: wait; }
     button.secondary { background: #e5efeb; color: var(--primary); }
     button.danger { background: #fff0ee; color: #b42318; }
-    button.small { width: auto; min-height: 36px; padding: 7px 10px; font-size: 13px; }
-
+    button.small {
+      width: auto;
+      min-height: 36px;
+      padding: 7px 10px;
+      font-size: 13px;
+      margin: 8px 6px 0 0;
+    }
     .hidden { display: none !important; }
-
     .stats {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
       margin-bottom: 16px;
     }
-
     .stat {
       background: white;
       padding: 15px;
@@ -93,15 +83,17 @@
       border-radius: 14px;
       overflow-wrap: anywhere;
     }
-
     .stat span { color: #687672; font-size: 12px; display: block; }
     .stat strong { font-size: 20px; display: block; margin-top: 7px; }
-
     .participant { padding: 14px 0; border-bottom: 1px solid var(--border); }
     .participant:last-child { border-bottom: 0; }
-
-    .details { font-size: 13px; color: #687672; margin-top: 6px; line-height: 1.6; overflow-wrap: anywhere; }
-
+    .details {
+      font-size: 13px;
+      color: #687672;
+      margin-top: 6px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
     .status {
       display: inline-block;
       padding: 4px 8px;
@@ -109,10 +101,8 @@
       font-size: 12px;
       margin-top: 7px;
     }
-
     .paid { background: #e1f5e8; color: #17663a; }
     .pending { background: #fff0d6; color: #8a5200; }
-
     .message {
       padding: 12px;
       border-radius: 10px;
@@ -120,40 +110,53 @@
       font-size: 14px;
       overflow-wrap: anywhere;
     }
-
     .error { background: #fff0ee; color: #9e2018; }
     .success { background: #e1f5e8; color: #17663a; }
-    .muted { color: #687672; font-size: 13px; }
+    .muted { color: #687672; font-size: 13px; line-height: 1.5; }
     .draw-result { text-align: center; padding: 20px 8px; }
-    .draw-result strong { font-size: 25px; color: var(--primary); display: block; margin-top: 8px; }
-
+    .draw-result strong {
+      font-size: 25px;
+      color: var(--primary);
+      display: block;
+      margin-top: 8px;
+      overflow-wrap: anywhere;
+    }
+    .total-preview {
+      background: #edf6f2;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 14px;
+    }
+    .check-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .check-line input { width: 20px; min-height: 20px; }
+    .check-line label { margin: 12px 0; }
     @media (min-width: 650px) {
       .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
     }
   </style>
 </head>
-
 <body>
   <header>
     <h1>🎟️ Controle da Rifa</h1>
-    <p>Seu painel de participantes e pagamentos</p>
+    <p>Participantes, pagamentos e sorteio</p>
   </header>
 
   <main>
-    <div id="message" class="hidden" role="status"></div>
+    <div id="message" class="hidden" role="status" aria-live="polite"></div>
 
     <section id="loginSection" class="card">
       <h2>Entrar no painel</h2>
-      <p class="muted">Entre com seu e-mail e sua senha cadastrados no Supabase.</p>
-
+      <p class="muted">Use seu e-mail e sua senha cadastrados no Supabase.</p>
       <form id="loginForm">
         <label for="email">E-mail</label>
         <input id="email" type="email" autocomplete="username" required>
-
         <label for="password">Senha</label>
         <input id="password" type="password" autocomplete="current-password" required>
-
         <button id="loginButton" type="submit">Entrar</button>
       </form>
     </section>
@@ -173,45 +176,46 @@
           <strong id="totalAmount">R$ 0,00</strong>
         </div>
         <div class="stat">
-          <span>Recebido</span>
+          <span>Total recebido</span>
           <strong id="paidAmount">R$ 0,00</strong>
         </div>
         <div class="stat">
-          <span>A receber</span>
+          <span>Total pendente</span>
           <strong id="pendingAmount">R$ 0,00</strong>
         </div>
       </div>
 
       <section class="card">
         <h2>Cadastrar participante</h2>
-
         <form id="participantForm">
+          <label for="name">Nome completo</label>
+          <input id="name" maxlength="120" required placeholder="Nome do participante">
+
+          <label for="phone">Telefone (opcional)</label>
+          <input id="phone" type="tel" maxlength="30" placeholder="Telefone para contato">
+
           <div class="form-grid">
             <div>
-              <label for="name">Nome completo</label>
-              <input id="name" maxlength="120" required>
+              <label for="unitPrice">Preço de cada participação (R$)</label>
+              <input id="unitPrice" type="number" min="0.01" max="1000000"
+                step="0.01" value="10.00" required>
             </div>
-
-            <div>
-              <label for="phone">Telefone (opcional)</label>
-              <input id="phone" type="tel" maxlength="30">
-            </div>
-
-            <div>
-              <label for="amount">Valor combinado (R$)</label>
-              <input id="amount" type="number" min="0.01" step="0.01" required>
-            </div>
-
             <div>
               <label for="quantity">Quantidade de participações</label>
-              <input id="quantity" type="number" min="1" step="1" value="1" required>
+              <input id="quantity" type="number" min="1" max="100000"
+                step="1" value="1" required>
             </div>
           </div>
 
-          <label style="display:flex;align-items:center;gap:8px">
-            <input id="paidInput" type="checkbox" style="width:20px;min-height:20px">
-            Pagamento já realizado
-          </label>
+          <div class="total-preview">
+            Valor total da compra:
+            <strong id="calculatedTotal">R$ 10,00</strong>
+          </div>
+
+          <div class="check-line">
+            <input id="paidInput" type="checkbox">
+            <label for="paidInput">Pagamento já realizado</label>
+          </div>
 
           <button id="saveButton" type="submit">Cadastrar participante</button>
         </form>
@@ -219,21 +223,18 @@
 
       <section class="card">
         <h2>Participantes cadastrados</h2>
-        <label for="search">Pesquisar participante</label>
-        <input id="search" type="search" placeholder="Digite um nome ou telefone">
-
+        <label for="search">Pesquisar por nome ou telefone</label>
+        <input id="search" type="search" placeholder="Digite para pesquisar">
         <div id="participantList" aria-live="polite"></div>
-
         <button id="refreshButton" class="secondary" type="button">Atualizar lista</button>
       </section>
 
       <section class="card">
         <h2>Sorteio por nome</h2>
         <p class="muted">
-          O sorteio abaixo dá uma chance por participante pago,
-          independentemente da quantidade cadastrada.
+          Cada participação paga vale uma chance. Compras com várias
+          participações terão mais chances de ganhar.
         </p>
-
         <button id="drawButton" type="button">Sortear nome</button>
         <div id="drawResult" class="draw-result"></div>
       </section>
@@ -241,14 +242,19 @@
   </main>
 
   <script>
-    // Dados do seu projeto Supabase
     const SUPABASE_URL = "https://isffremdesipluzzlgul.supabase.co";
     const SUPABASE_KEY = "sb_publishable_zHTe78sOa4RSk684gqQFrw_A2xKkhAX";
 
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const $ = id => document.getElementById(id);
-
-    let db = null;
     let participants = [];
+    let busy = false;
+
+    function money(value) {
+      return Number(value || 0).toLocaleString("pt-BR", {
+        style: "currency", currency: "BRL"
+      });
+    }
 
     function showMessage(text, type = "error") {
       $("message").textContent = text;
@@ -260,16 +266,10 @@
       $("message").className = "hidden";
     }
 
-    function money(value) {
-      return Number(value || 0).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      });
-    }
-
-    function setBusy(busy) {
+    function setBusy(value) {
+      busy = value;
       document.querySelectorAll("button").forEach(button => {
-        button.disabled = busy;
+        button.disabled = value;
       });
     }
 
@@ -283,16 +283,27 @@
       $("appSection").classList.remove("hidden");
     }
 
-    async function loadParticipants() {
-      clearMessage();
+    function calculateTotal() {
+      const price = Number($("unitPrice").value);
+      const quantity = Number($("quantity").value);
+      const valid = Number.isFinite(price) && price > 0 &&
+        Number.isInteger(quantity) && quantity >= 1;
+      const total = valid ? Math.round(price * 100) * quantity / 100 : 0;
+      $("calculatedTotal").textContent = money(total);
+      return total;
+    }
 
+    $("unitPrice").addEventListener("input", calculateTotal);
+    $("quantity").addEventListener("input", calculateTotal);
+
+    async function loadParticipants() {
       const { data, error } = await db
         .from("participants")
-        .select("*")
+        .select("id,name,phone,amount,quantity,paid,created_at")
         .order("created_at", { ascending: false });
 
       if (error) {
-        showMessage("Erro ao carregar dados: " + error.message);
+        showMessage("Erro ao carregar participantes: " + error.message);
         return;
       }
 
@@ -301,22 +312,23 @@
     }
 
     function render() {
-      const total = participants.reduce((sum, p) => sum + Number(p.amount), 0);
-
+      const total = participants.reduce((sum, p) => sum + Number(p.amount || 0), 0);
       const received = participants
         .filter(p => p.paid)
-        .reduce((sum, p) => sum + Number(p.amount), 0);
+        .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+      const pending = participants
+        .filter(p => !p.paid)
+        .reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
       $("totalPeople").textContent = participants.length;
       $("totalAmount").textContent = money(total);
       $("paidAmount").textContent = money(received);
-      $("pendingAmount").textContent = money(total - received);
+      $("pendingAmount").textContent = money(pending);
 
       const term = $("search").value.trim().toLocaleLowerCase("pt-BR");
-
       const filtered = participants.filter(p =>
-        p.name.toLocaleLowerCase("pt-BR").includes(term) ||
-        (p.phone || "").toLocaleLowerCase("pt-BR").includes(term)
+        String(p.name || "").toLocaleLowerCase("pt-BR").includes(term) ||
+        String(p.phone || "").toLocaleLowerCase("pt-BR").includes(term)
       );
 
       const list = $("participantList");
@@ -327,7 +339,7 @@
         empty.className = "muted";
         empty.textContent = participants.length
           ? "Nenhum participante encontrado."
-          : "Nenhum participante cadastrado ainda.";
+          : "Nenhum participante cadastrado.";
         list.appendChild(empty);
         return;
       }
@@ -342,73 +354,81 @@
 
         const status = document.createElement("div");
         status.className = "status " + (p.paid ? "paid" : "pending");
-        status.textContent = p.paid ? "Pagamento pago" : "Pagamento pendente";
+        status.textContent = p.paid ? "Pago" : "Pendente";
         item.appendChild(status);
 
         const details = document.createElement("div");
         details.className = "details";
         details.textContent =
           "Telefone: " + (p.phone || "Não informado") +
-          " · Valor: " + money(p.amount) +
-          " · Participações: " + p.quantity;
-
+          " · Valor total: " + money(p.amount) +
+          " · Participações: " + Number(p.quantity || 1) +
+          " · Chances no sorteio quando pago: " +
+          (p.paid ? Number(p.quantity || 1) : 0);
         item.appendChild(details);
 
-        const toggle = document.createElement("button");
-        toggle.className = "small secondary";
-        toggle.textContent = p.paid ? "Marcar pendente" : "Marcar pago";
-        toggle.addEventListener("click", () => updatePaid(p.id, !p.paid));
-        item.appendChild(toggle);
+        const paymentButton = document.createElement("button");
+        paymentButton.className = "small secondary";
+        paymentButton.textContent = p.paid ? "Marcar pendente" : "Marcar pago";
+        paymentButton.addEventListener("click", () => updatePaid(p.id, !p.paid));
+        item.appendChild(paymentButton);
 
-        const remove = document.createElement("button");
-        remove.className = "small danger";
-        remove.textContent = "Excluir";
-        remove.addEventListener("click", () => deleteParticipant(p.id, p.name));
-        item.appendChild(remove);
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "small danger";
+        deleteButton.textContent = "Excluir";
+        deleteButton.addEventListener("click", () => deleteParticipant(p.id, p.name));
+        item.appendChild(deleteButton);
 
         list.appendChild(item);
       });
     }
 
     async function updatePaid(id, paid) {
+      if (busy) return;
       clearMessage();
+      setBusy(true);
 
-      const { error } = await db
-        .from("participants")
-        .update({ paid })
-        .eq("id", id);
+      try {
+        const { error } = await db
+          .from("participants")
+          .update({ paid })
+          .eq("id", id);
 
-      if (error) {
-        showMessage("Erro ao atualizar pagamento: " + error.message);
-        return;
+        if (error) throw error;
+
+        $("drawResult").replaceChildren();
+        await loadParticipants();
+        showMessage("Pagamento atualizado.", "success");
+      } catch (error) {
+        showMessage("Não foi possível atualizar: " + error.message);
+      } finally {
+        setBusy(false);
       }
-
-      showMessage("Pagamento atualizado.", "success");
-      await loadParticipants();
     }
 
     async function deleteParticipant(id, name) {
-      if (!confirm("Deseja realmente excluir " + name + "?")) return;
+      if (busy || !confirm("Deseja excluir o cadastro de " + name + "?")) return;
 
       clearMessage();
+      setBusy(true);
 
-      const { error } = await db
-        .from("participants")
-        .delete()
-        .eq("id", id);
+      try {
+        const { error } = await db.from("participants").delete().eq("id", id);
+        if (error) throw error;
 
-      if (error) {
-        showMessage("Erro ao excluir participante: " + error.message);
-        return;
+        $("drawResult").replaceChildren();
+        await loadParticipants();
+        showMessage("Participante excluído.", "success");
+      } catch (error) {
+        showMessage("Não foi possível excluir: " + error.message);
+      } finally {
+        setBusy(false);
       }
-
-      $("drawResult").replaceChildren();
-      showMessage("Participante excluído.", "success");
-      await loadParticipants();
     }
 
     $("loginForm").addEventListener("submit", async event => {
       event.preventDefault();
+      if (busy) return;
       clearMessage();
       setBusy(true);
 
@@ -423,38 +443,48 @@
         showApp();
         await loadParticipants();
       } catch (error) {
-        showMessage("Não foi possível entrar. Confira o e-mail e a senha.");
+        showMessage("Falha no login. Confira seus dados e a confirmação do e-mail.");
       } finally {
         setBusy(false);
       }
     });
 
     $("logoutButton").addEventListener("click", async () => {
-      await db.auth.signOut();
-      participants = [];
-      $("drawResult").replaceChildren();
-      showLogin();
-      clearMessage();
+      if (busy) return;
+      setBusy(true);
+
+      try {
+        await db.auth.signOut();
+        participants = [];
+        $("drawResult").replaceChildren();
+        showLogin();
+        clearMessage();
+      } finally {
+        setBusy(false);
+      }
     });
 
     $("participantForm").addEventListener("submit", async event => {
       event.preventDefault();
+      if (busy) return;
       clearMessage();
 
       const name = $("name").value.trim();
       const phone = $("phone").value.trim() || null;
-      const amount = Number($("amount").value);
+      const unitPrice = Number($("unitPrice").value);
       const quantity = Number($("quantity").value);
       const paid = $("paidInput").checked;
 
-      if (
-        !name ||
-        !Number.isFinite(amount) ||
-        amount <= 0 ||
-        !Number.isInteger(quantity) ||
-        quantity < 1
-      ) {
-        showMessage("Confira o nome, o valor e a quantidade.");
+      if (!name || !Number.isFinite(unitPrice) || unitPrice <= 0 ||
+          !Number.isInteger(quantity) || quantity < 1 || quantity > 100000) {
+        showMessage("Confira o nome, o preço e a quantidade.");
+        return;
+      }
+
+      const amount = Math.round(unitPrice * 100) * quantity / 100;
+
+      if (!Number.isFinite(amount) || amount <= 0) {
+        showMessage("O valor total é inválido.");
         return;
       }
 
@@ -468,13 +498,15 @@
         if (error) throw error;
 
         $("participantForm").reset();
+        $("unitPrice").value = "10.00";
         $("quantity").value = "1";
+        calculateTotal();
         $("drawResult").replaceChildren();
 
-        showMessage("Participante cadastrado com sucesso!", "success");
         await loadParticipants();
+        showMessage("Participante cadastrado. Total: " + money(amount), "success");
       } catch (error) {
-        showMessage("Erro ao cadastrar: " + error.message);
+        showMessage("Erro ao cadastrar participante: " + error.message);
       } finally {
         setBusy(false);
       }
@@ -483,57 +515,84 @@
     $("search").addEventListener("input", render);
     $("refreshButton").addEventListener("click", loadParticipants);
 
+    // Sorteio ponderado: cada participação paga equivale a um bilhete.
     $("drawButton").addEventListener("click", () => {
+      if (busy) return;
+      clearMessage();
       $("drawResult").replaceChildren();
 
-      const eligible = participants.filter(p => p.paid);
+      const eligible = participants.filter(p =>
+        p.paid &&
+        Number.isInteger(Number(p.quantity)) &&
+        Number(p.quantity) > 0
+      );
 
-      if (!eligible.length) {
-        showMessage("Não há participantes pagos para o sorteio.");
+      const totalChances = eligible.reduce(
+        (sum, p) => sum + Number(p.quantity), 0
+      );
+
+      if (!totalChances) {
+        showMessage("Não há participações pagas para o sorteio.");
         return;
       }
 
-      clearMessage();
+      // Escolhe um número inteiro entre 1 e o total de participações.
+      // O participante vencedor é aquele cujo intervalo contém esse número.
+      const winningTicket = Math.floor(Math.random() * totalChances);
+      let accumulated = 0;
+      let winner = null;
 
-      const winner = eligible[Math.floor(Math.random() * eligible.length)];
+      for (const participant of eligible) {
+        accumulated += Number(participant.quantity);
+        if (winningTicket < accumulated) {
+          winner = participant;
+          break;
+        }
+      }
 
-      const label = document.createElement("span");
-      label.textContent = "Nome sorteado";
+      if (!winner) {
+        showMessage("Não foi possível calcular o resultado. Tente novamente.");
+        return;
+      }
+
+      const title = document.createElement("span");
+      title.textContent = "🎉 Nome sorteado";
 
       const name = document.createElement("strong");
       name.textContent = winner.name;
 
-      const note = document.createElement("p");
-      note.className = "muted";
-      note.textContent =
-        "Confira as regras da rifa antes de anunciar o resultado.";
+      const info = document.createElement("p");
+      info.className = "muted";
+      info.textContent =
+        "Participações pagas consideradas: " + totalChances +
+        ". O cadastro vencedor tem " + Number(winner.quantity) +
+        " participação(ões).";
 
-      $("drawResult").append(label, name, note);
+      $("drawResult").append(title, name, info);
     });
 
     async function start() {
-      db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      const { data, error } = await db.auth.getSession();
 
-      try {
-        const { data: { session }, error } = await db.auth.getSession();
-        if (error) throw error;
-
-        if (session) {
-          showApp();
-          await loadParticipants();
-        } else {
-          showLogin();
-        }
-
-        db.auth.onAuthStateChange((_event, session) => {
-          if (!session) showLogin();
-        });
-      } catch (error) {
+      if (error) {
         showLogin();
-        showMessage("Erro ao iniciar. Atualize a página e tente novamente.");
+        showMessage("Não foi possível verificar sua sessão.");
+        return;
       }
+
+      if (data.session) {
+        showApp();
+        await loadParticipants();
+      } else {
+        showLogin();
+      }
+
+      db.auth.onAuthStateChange((_event, session) => {
+        if (!session) showLogin();
+      });
     }
 
+    calculateTotal();
     start();
   </script>
 </body>
