@@ -1,0 +1,507 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11665f">
+  <title>Controle da Rifa</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --primary: #11665f;
+      --bg: #f5f4ed;
+      --card: #ffffff;
+      --text: #202b29;
+      --muted: #687672;
+      --border: #dfe5df;
+      --red: #b42318;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 24px 18px;
+    }
+
+    header h1 { margin: 0 0 6px; font-size: 25px; }
+    header p { margin: 0; opacity: .9; font-size: 14px; }
+
+    main {
+      width: min(100% - 24px, 900px);
+      margin: 20px auto;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 3px 12px #172b2408;
+    }
+
+    h2 { font-size: 19px; margin: 0 0 16px; }
+    label { display: block; font-size: 14px; margin: 12px 0 6px; }
+
+    input, button {
+      font: inherit;
+      width: 100%;
+      min-height: 45px;
+      border-radius: 10px;
+    }
+
+    input {
+      padding: 10px 12px;
+      border: 1px solid #cbd5cf;
+      background: white;
+      color: var(--text);
+    }
+
+    button {
+      border: 0;
+      padding: 11px 14px;
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    button:disabled { opacity: .55; cursor: wait; }
+    button.secondary { background: #e5efeb; color: var(--primary); }
+    button.danger { background: #fff0ee; color: var(--red); }
+    button.small { width: auto; min-height: 36px; padding: 7px 10px; margin: 4px 4px 0 0; font-size: 13px; }
+
+    .hidden { display: none !important; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      background: white;
+      padding: 15px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      min-width: 0;
+    }
+
+    .stat span { color: var(--muted); font-size: 12px; display: block; }
+    .stat strong { font-size: 21px; display: block; margin-top: 7px; overflow-wrap: anywhere; }
+
+    .participant {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .participant:last-child { border-bottom: 0; }
+    .participant strong { overflow-wrap: anywhere; }
+    .details { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.6; }
+
+    .status {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 20px;
+      font-size: 12px;
+      margin-top: 7px;
+    }
+
+    .paid { background: #e1f5e8; color: #17663a; }
+    .pending { background: #fff0d6; color: #8a5200; }
+
+    .message {
+      padding: 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .error { background: #fff0ee; color: #9e2018; }
+    .success { background: #e1f5e8; color: #17663a; }
+    .muted { color: var(--muted); font-size: 13px; }
+    .draw-result { text-align: center; padding: 20px 8px; }
+    .draw-result strong { font-size: 25px; color: var(--primary); display: block; margin-top: 8px; }
+
+    @media (min-width: 650px) {
+      .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>🎟️ Controle da Rifa</h1>
+    <p>Seu painel privado de participantes e pagamentos</p>
+  </header>
+
+  <main>
+    <div id="message" class="hidden" role="status"></div>
+
+    <section id="loginSection" class="card">
+      <h2>Entrar no painel</h2>
+      <p class="muted">Use o e-mail e a senha cadastrados no Supabase.</p>
+      <form id="loginForm">
+        <label for="email">E-mail</label>
+        <input id="email" type="email" autocomplete="username" required>
+        <label for="password">Senha</label>
+        <input id="password" type="password" autocomplete="current-password" required>
+        <button id="loginButton" type="submit">Entrar</button>
+      </form>
+    </section>
+
+    <section id="appSection" class="hidden">
+      <div class="card">
+        <button id="logoutButton" class="secondary" type="button">Sair da conta</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><span>Participantes</span><strong id="totalPeople">0</strong></div>
+        <div class="stat"><span>Valor cadastrado</span><strong id="totalAmount">R$ 0,00</strong></div>
+        <div class="stat"><span>Recebido</span><strong id="paidAmount">R$ 0,00</strong></div>
+        <div class="stat"><span>A receber</span><strong id="pendingAmount">R$ 0,00</strong></div>
+      </div>
+
+      <section class="card">
+        <h2>Cadastrar participante</h2>
+        <form id="participantForm">
+          <div class="form-grid">
+            <div>
+              <label for="name">Nome completo</label>
+              <input id="name" maxlength="120" required>
+            </div>
+            <div>
+              <label for="phone">Telefone (opcional)</label>
+              <input id="phone" type="tel" maxlength="30">
+            </div>
+            <div>
+              <label for="amount">Valor combinado (R$)</label>
+              <input id="amount" type="number" min="0.01" step="0.01" required>
+            </div>
+            <div>
+              <label for="quantity">Quantidade de participações</label>
+              <input id="quantity" type="number" min="1" step="1" value="1" required>
+            </div>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px">
+            <input id="paidInput" type="checkbox" style="width:20px;min-height:20px">
+            Pagamento já realizado
+          </label>
+          <button id="saveButton" type="submit">Cadastrar participante</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Participantes cadastrados</h2>
+        <label for="search">Pesquisar por nome ou telefone</label>
+        <input id="search" type="search" placeholder="Digite para pesquisar...">
+        <div id="participantList" aria-live="polite"></div>
+        <button id="refreshButton" class="secondary" type="button">Atualizar lista</button>
+      </section>
+
+      <section class="card">
+        <h2>Sorteio por nome</h2>
+        <p class="muted">Será sorteado um participante entre os que estiverem marcados como pagos. Cada participante terá uma chance, independentemente da quantidade cadastrada.</p>
+        <button id="drawButton" type="button">Sortear nome</button>
+        <div id="drawResult" class="draw-result"></div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    // PREENCHA ESTES DOIS VALORES COM OS DADOS DO SEU PROJETO SUPABASE.
+    // Use somente a chave publicável (anon/publishable), nunca a service_role.
+    const SUPABASE_URL = "COLE_A_URL_DO_SEU_PROJETO";
+    const SUPABASE_KEY = "COLE_SUA_CHAVE_PUBLICA";
+
+    const $ = (id) => document.getElementById(id);
+    let db = null;
+    let participants = [];
+    let busy = false;
+
+    function showMessage(text, type = "error") {
+      const box = $("message");
+      box.textContent = text;
+      box.className = "message " + type;
+    }
+
+    function clearMessage() {
+      $("message").textContent = "";
+      $("message").className = "hidden";
+    }
+
+    function money(value) {
+      return Number(value || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
+    }
+
+    function setBusy(value) {
+      busy = value;
+      document.querySelectorAll("button").forEach((button) => {
+        button.disabled = value;
+      });
+    }
+
+    function showLogin() {
+      $("loginSection").classList.remove("hidden");
+      $("appSection").classList.add("hidden");
+    }
+
+    function showApp() {
+      $("loginSection").classList.add("hidden");
+      $("appSection").classList.remove("hidden");
+    }
+
+    async function loadParticipants() {
+      clearMessage();
+      const { data, error } = await db
+        .from("participants")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        showMessage("Não foi possível carregar os participantes: " + error.message);
+        return;
+      }
+
+      participants = data || [];
+      render();
+    }
+
+    function render() {
+      const total = participants.reduce((sum, p) => sum + Number(p.amount), 0);
+      const received = participants
+        .filter(p => p.paid)
+        .reduce((sum, p) => sum + Number(p.amount), 0);
+
+      $("totalPeople").textContent = participants.length;
+      $("totalAmount").textContent = money(total);
+      $("paidAmount").textContent = money(received);
+      $("pendingAmount").textContent = money(total - received);
+
+      const term = $("search").value.trim().toLocaleLowerCase("pt-BR");
+      const filtered = participants.filter(p =>
+        p.name.toLocaleLowerCase("pt-BR").includes(term) ||
+        (p.phone || "").toLocaleLowerCase("pt-BR").includes(term)
+      );
+
+      const list = $("participantList");
+      list.replaceChildren();
+
+      if (!filtered.length) {
+        const empty = document.createElement("p");
+        empty.className = "muted";
+        empty.textContent = participants.length
+          ? "Nenhum participante corresponde à pesquisa."
+          : "Ainda não há participantes cadastrados.";
+        list.appendChild(empty);
+        return;
+      }
+
+      filtered.forEach(p => {
+        const item = document.createElement("div");
+        item.className = "participant";
+
+        const name = document.createElement("strong");
+        name.textContent = p.name;
+        item.appendChild(name);
+
+        const status = document.createElement("div");
+        status.className = "status " + (p.paid ? "paid" : "pending");
+        status.textContent = p.paid ? "Pagamento pago" : "Pagamento pendente";
+        item.appendChild(status);
+
+        const details = document.createElement("div");
+        details.className = "details";
+        details.textContent =
+          "Telefone: " + (p.phone || "Não informado") +
+          " · Valor: " + money(p.amount) +
+          " · Participações: " + p.quantity;
+        item.appendChild(details);
+
+        const toggle = document.createElement("button");
+        toggle.className = "small secondary";
+        toggle.textContent = p.paid ? "Marcar como pendente" : "Marcar como pago";
+        toggle.addEventListener("click", () => updatePaid(p.id, !p.paid));
+        item.appendChild(toggle);
+
+        const remove = document.createElement("button");
+        remove.className = "small danger";
+        remove.textContent = "Excluir";
+        remove.addEventListener("click", () => deleteParticipant(p.id, p.name));
+        item.appendChild(remove);
+
+        list.appendChild(item);
+      });
+    }
+
+    async function updatePaid(id, paid) {
+      clearMessage();
+      const { error } = await db
+        .from("participants")
+        .update({ paid })
+        .eq("id", id);
+
+      if (error) return showMessage("Erro ao atualizar pagamento: " + error.message);
+
+      showMessage("Pagamento atualizado.", "success");
+      await loadParticipants();
+    }
+
+    async function deleteParticipant(id, name) {
+      if (!confirm("Deseja realmente excluir " + name + "?")) return;
+
+      clearMessage();
+      const { error } = await db
+        .from("participants")
+        .delete()
+        .eq("id", id);
+
+      if (error) return showMessage("Erro ao excluir: " + error.message);
+
+      $("drawResult").textContent = "";
+      showMessage("Participante excluído.", "success");
+      await loadParticipants();
+    }
+
+    $("loginForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      clearMessage();
+
+      if (!db) return showMessage("Configure a URL e a chave pública do Supabase no código.");
+
+      setBusy(true);
+      try {
+        const { error } = await db.auth.signInWithPassword({
+          email: $("email").value.trim(),
+          password: $("password").value
+        });
+
+        if (error) throw error;
+
+        showApp();
+        await loadParticipants();
+      } catch (error) {
+        showMessage("Não foi possível entrar. Confira o e-mail e a senha.");
+      } finally {
+        setBusy(false);
+      }
+    });
+
+    $("logoutButton").addEventListener("click", async () => {
+      if (!db) return;
+      await db.auth.signOut();
+      participants = [];
+      $("drawResult").textContent = "";
+      showLogin();
+      clearMessage();
+    });
+
+    $("participantForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      clearMessage();
+
+      const name = $("name").value.trim();
+      const phone = $("phone").value.trim() || null;
+      const amount = Number($("amount").value);
+      const quantity = Number($("quantity").value);
+      const paid = $("paidInput").checked;
+
+      if (!name || !Number.isFinite(amount) || amount <= 0 ||
+          !Number.isInteger(quantity) || quantity < 1) {
+        return showMessage("Confira o nome, o valor e a quantidade informados.");
+      }
+
+      setBusy(true);
+      try {
+        const { error } = await db.from("participants").insert({
+          name, phone, amount, quantity, paid
+        });
+
+        if (error) throw error;
+
+        $("participantForm").reset();
+        $("quantity").value = "1";
+        $("drawResult").textContent = "";
+        showMessage("Participante cadastrado com sucesso!", "success");
+        await loadParticipants();
+      } catch (error) {
+        showMessage("Não foi possível cadastrar: " + error.message);
+      } finally {
+        setBusy(false);
+      }
+    });
+
+    $("search").addEventListener("input", render);
+    $("refreshButton").addEventListener("click", loadParticipants);
+
+    $("drawButton").addEventListener("click", () => {
+      $("drawResult").replaceChildren();
+
+      const eligible = participants.filter(p => p.paid);
+
+      if (!eligible.length) {
+        showMessage("Não há participantes pagos para o sorteio.");
+        return;
+      }
+
+      clearMessage();
+      const winner = eligible[Math.floor(Math.random() * eligible.length)];
+
+      const label = document.createElement("span");
+      label.textContent = "Nome sorteado";
+      const name = document.createElement("strong");
+      name.textContent = winner.name;
+      const note = document.createElement("p");
+      note.className = "muted";
+      note.textContent = "Confirme a elegibilidade e as regras da rifa antes de anunciar o resultado.";
+
+      $("drawResult").append(label, name, note);
+    });
+
+    async function start() {
+      if (!window.supabase ||
+          SUPABASE_URL.includes("COLE_") ||
+          SUPABASE_KEY.includes("COLE_")) {
+        showLogin();
+        showMessage("O arquivo está pronto. Falta conectar seu projeto Supabase.");
+        return;
+      }
+
+      db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      const { data: { session } } = await db.auth.getSession();
+      if (session) {
+        showApp();
+        await loadParticipants();
+      } else {
+        showLogin();
+      }
+
+      db.auth.onAuthStateChange((_event, session) => {
+        if (!session) showLogin();
+      });
+    }
+
+    start();
+  </script>
+</body>
+</html>
