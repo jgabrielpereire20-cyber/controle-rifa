@@ -4,64 +4,134 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#11665f">
+  <meta name="theme-color" content="#080b12">
   <title>Controle da Rifa</title>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     :root {
-      --primary: #11665f;
-      --bg: #f5f4ed;
-      --text: #202b29;
-      --border: #dfe5df;
+      --red: #ef233c;
+      --red-dark: #c1122f;
+      --blue: #2563eb;
+      --blue-light: #60a5fa;
+      --black: #080b12;
+      --card: #111827;
+      --card-light: #172033;
+      --text: #f8fafc;
+      --muted: #aab6ca;
+      --border: #2a3650;
+      --green: #22c55e;
     }
-    * { box-sizing: border-box; }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      background: var(--bg);
+      background: var(--black);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
+
     header {
-      background: var(--primary);
-      color: white;
+      background: linear-gradient(120deg, #111827, #172554);
+      border-bottom: 4px solid var(--red);
       padding: 24px 18px;
     }
-    header h1 { margin: 0 0 6px; font-size: 25px; }
-    header p { margin: 0; opacity: .9; font-size: 14px; }
-    main { width: min(100% - 24px, 900px); margin: 20px auto; }
+
+    header h1 {
+      margin: 0 0 6px;
+      font-size: 26px;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    main {
+      width: min(100% - 24px, 900px);
+      margin: 20px auto;
+    }
+
     .card {
-      background: white;
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 18px;
       margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
     }
-    h2 { font-size: 19px; margin: 0 0 16px; }
-    label { display: block; font-size: 14px; margin: 12px 0 6px; }
+
+    h2 {
+      font-size: 19px;
+      margin: 0 0 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      margin: 12px 0 6px;
+    }
+
     input, button {
       font: inherit;
       width: 100%;
       min-height: 45px;
       border-radius: 10px;
     }
+
     input {
       padding: 10px 12px;
-      border: 1px solid #cbd5cf;
-      background: white;
+      border: 1px solid #3b4963;
+      background: #080b12;
       color: var(--text);
+      outline: none;
     }
+
+    input:focus {
+      border-color: var(--blue-light);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, .25);
+    }
+
     button {
       border: 0;
       padding: 11px 14px;
-      background: var(--primary);
+      background: var(--red);
       color: white;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       margin-top: 12px;
+      transition: background .15s;
     }
-    button:disabled { opacity: .55; cursor: wait; }
-    button.secondary { background: #e5efeb; color: var(--primary); }
-    button.danger { background: #fff0ee; color: #b42318; }
+
+    button:hover {
+      background: var(--red-dark);
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: wait;
+    }
+
+    button.secondary {
+      background: var(--blue);
+      color: white;
+    }
+
+    button.secondary:hover {
+      background: #1d4ed8;
+    }
+
+    button.danger {
+      background: #3f1420;
+      color: #fecdd3;
+      border: 1px solid #7f1d2d;
+    }
+
     button.small {
       width: auto;
       min-height: 36px;
@@ -69,40 +139,87 @@
       font-size: 13px;
       margin: 8px 6px 0 0;
     }
-    .hidden { display: none !important; }
+
+    .hidden {
+      display: none !important;
+    }
+
     .stats {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
       margin-bottom: 16px;
     }
+
     .stat {
-      background: white;
+      background: var(--card);
       padding: 15px;
       border: 1px solid var(--border);
+      border-top: 3px solid var(--blue);
       border-radius: 14px;
       overflow-wrap: anywhere;
     }
-    .stat span { color: #687672; font-size: 12px; display: block; }
-    .stat strong { font-size: 20px; display: block; margin-top: 7px; }
-    .participant { padding: 14px 0; border-bottom: 1px solid var(--border); }
-    .participant:last-child { border-bottom: 0; }
+
+    .stat:nth-child(2) {
+      border-top-color: var(--red);
+    }
+
+    .stat:nth-child(3) {
+      border-top-color: var(--blue-light);
+    }
+
+    .stat:nth-child(4) {
+      border-top-color: #f87171;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 12px;
+      display: block;
+    }
+
+    .stat strong {
+      font-size: 20px;
+      display: block;
+      margin-top: 7px;
+    }
+
+    .participant {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .participant:last-child {
+      border-bottom: 0;
+    }
+
     .details {
       font-size: 13px;
-      color: #687672;
+      color: var(--muted);
       margin-top: 6px;
-      line-height: 1.6;
+      line-height: 1.7;
       overflow-wrap: anywhere;
     }
+
     .status {
       display: inline-block;
       padding: 4px 8px;
       border-radius: 20px;
       font-size: 12px;
       margin-top: 7px;
+      font-weight: 700;
     }
-    .paid { background: #e1f5e8; color: #17663a; }
-    .pending { background: #fff0d6; color: #8a5200; }
+
+    .paid {
+      background: #102b50;
+      color: #93c5fd;
+    }
+
+    .pending {
+      background: #451722;
+      color: #fda4af;
+    }
+
     .message {
       padding: 12px;
       border-radius: 10px;
@@ -110,36 +227,84 @@
       font-size: 14px;
       overflow-wrap: anywhere;
     }
-    .error { background: #fff0ee; color: #9e2018; }
-    .success { background: #e1f5e8; color: #17663a; }
-    .muted { color: #687672; font-size: 13px; line-height: 1.5; }
-    .draw-result { text-align: center; padding: 20px 8px; }
-    .draw-result strong {
-      font-size: 25px;
-      color: var(--primary);
-      display: block;
-      margin-top: 8px;
-      overflow-wrap: anywhere;
+
+    .error {
+      background: #451722;
+      color: #fecdd3;
+      border: 1px solid #9f1239;
     }
+
+    .success {
+      background: #102b50;
+      color: #bfdbfe;
+      border: 1px solid #1d4ed8;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
     .total-preview {
-      background: #edf6f2;
+      background: #101f3d;
+      border: 1px solid var(--blue);
       border-radius: 10px;
-      padding: 12px;
+      padding: 14px;
       margin-top: 14px;
+      color: #dbeafe;
     }
+
+    .total-preview strong {
+      display: block;
+      margin-top: 6px;
+      color: white;
+      font-size: 25px;
+    }
+
     .check-line {
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .check-line input { width: 20px; min-height: 20px; }
-    .check-line label { margin: 12px 0; }
+
+    .check-line input {
+      width: 20px;
+      min-height: 20px;
+      accent-color: var(--red);
+    }
+
+    .check-line label {
+      margin: 12px 0;
+    }
+
+    .draw-result {
+      text-align: center;
+      padding: 20px 8px;
+    }
+
+    .draw-result strong {
+      font-size: 25px;
+      color: var(--blue-light);
+      display: block;
+      margin-top: 8px;
+      overflow-wrap: anywhere;
+    }
+
     @media (min-width: 650px) {
-      .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-      .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+      .stats {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 14px;
+      }
     }
   </style>
 </head>
+
 <body>
   <header>
     <h1>🎟️ Controle da Rifa</h1>
@@ -152,18 +317,24 @@
     <section id="loginSection" class="card">
       <h2>Entrar no painel</h2>
       <p class="muted">Use seu e-mail e sua senha cadastrados no Supabase.</p>
+
       <form id="loginForm">
         <label for="email">E-mail</label>
         <input id="email" type="email" autocomplete="username" required>
+
         <label for="password">Senha</label>
-        <input id="password" type="password" autocomplete="current-password" required>
+        <input id="password" type="password"
+          autocomplete="current-password" required>
+
         <button id="loginButton" type="submit">Entrar</button>
       </form>
     </section>
 
     <section id="appSection" class="hidden">
       <section class="card">
-        <button id="logoutButton" class="secondary" type="button">Sair da conta</button>
+        <button id="logoutButton" class="secondary" type="button">
+          Sair da conta
+        </button>
       </section>
 
       <div class="stats">
@@ -171,14 +342,17 @@
           <span>Participantes</span>
           <strong id="totalPeople">0</strong>
         </div>
+
         <div class="stat">
           <span>Valor cadastrado</span>
           <strong id="totalAmount">R$ 0,00</strong>
         </div>
+
         <div class="stat">
           <span>Total recebido</span>
           <strong id="paidAmount">R$ 0,00</strong>
         </div>
+
         <div class="stat">
           <span>Total pendente</span>
           <strong id="pendingAmount">R$ 0,00</strong>
@@ -187,23 +361,29 @@
 
       <section class="card">
         <h2>Cadastrar participante</h2>
+
         <form id="participantForm">
           <label for="name">Nome completo</label>
-          <input id="name" maxlength="120" required placeholder="Nome do participante">
+          <input id="name" maxlength="120" required
+            placeholder="Nome do participante">
 
           <label for="phone">Telefone (opcional)</label>
-          <input id="phone" type="tel" maxlength="30" placeholder="Telefone para contato">
+          <input id="phone" type="tel" maxlength="30"
+            placeholder="Telefone para contato">
 
           <div class="form-grid">
             <div>
               <label for="unitPrice">Preço de cada participação (R$)</label>
-              <input id="unitPrice" type="number" min="0.01" max="1000000"
-                step="0.01" value="10.00" required>
+              <input id="unitPrice" type="number"
+                min="0.01" max="1000000" step="0.01"
+                value="10.00" required>
             </div>
+
             <div>
               <label for="quantity">Quantidade de participações</label>
-              <input id="quantity" type="number" min="1" max="100000"
-                step="1" value="1" required>
+              <input id="quantity" type="number"
+                min="1" max="100000" step="1"
+                value="1" required>
             </div>
           </div>
 
@@ -217,24 +397,34 @@
             <label for="paidInput">Pagamento já realizado</label>
           </div>
 
-          <button id="saveButton" type="submit">Cadastrar participante</button>
+          <button id="saveButton" type="submit">
+            Cadastrar participante
+          </button>
         </form>
       </section>
 
       <section class="card">
         <h2>Participantes cadastrados</h2>
+
         <label for="search">Pesquisar por nome ou telefone</label>
-        <input id="search" type="search" placeholder="Digite para pesquisar">
+        <input id="search" type="search"
+          placeholder="Digite para pesquisar">
+
         <div id="participantList" aria-live="polite"></div>
-        <button id="refreshButton" class="secondary" type="button">Atualizar lista</button>
+
+        <button id="refreshButton" class="secondary" type="button">
+          Atualizar lista
+        </button>
       </section>
 
       <section class="card">
         <h2>Sorteio por nome</h2>
+
         <p class="muted">
-          Cada participação paga vale uma chance. Compras com várias
-          participações terão mais chances de ganhar.
+          Cada participação paga vale uma chance. Quem tiver mais
+          participações pagas terá mais chances de ganhar.
         </p>
+
         <button id="drawButton" type="button">Sortear nome</button>
         <div id="drawResult" class="draw-result"></div>
       </section>
@@ -242,17 +432,26 @@
   </main>
 
   <script>
-    const SUPABASE_URL = "https://isffremdesipluzzlgul.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_zHTe78sOa4RSk684gqQFrw_A2xKkhAX";
+    "use strict";
 
-    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const SUPABASE_URL = "https://isffremdesipluzzlgul.supabase.co";
+    const SUPABASE_KEY =
+      "sb_publishable_zHTe78sOa4RSk684gqQFrw_A2xKkhAX";
+
+    const db = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
     const $ = id => document.getElementById(id);
+
     let participants = [];
     let busy = false;
 
     function money(value) {
       return Number(value || 0).toLocaleString("pt-BR", {
-        style: "currency", currency: "BRL"
+        style: "currency",
+        currency: "BRL"
       });
     }
 
@@ -268,6 +467,7 @@
 
     function setBusy(value) {
       busy = value;
+
       document.querySelectorAll("button").forEach(button => {
         button.disabled = value;
       });
@@ -283,18 +483,45 @@
       $("appSection").classList.remove("hidden");
     }
 
+    // Calcula o preço unitário multiplicado pela quantidade.
     function calculateTotal() {
-      const price = Number($("unitPrice").value);
-      const quantity = Number($("quantity").value);
-      const valid = Number.isFinite(price) && price > 0 &&
-        Number.isInteger(quantity) && quantity >= 1;
-      const total = valid ? Math.round(price * 100) * quantity / 100 : 0;
-      $("calculatedTotal").textContent = money(total);
+      const priceInput = $("unitPrice");
+      const quantityInput = $("quantity");
+      const totalDisplay = $("calculatedTotal");
+
+      const priceText = priceInput.value.trim();
+      const quantityText = quantityInput.value.trim();
+
+      const price = Number(priceText);
+      const quantity = Number(quantityText);
+
+      const valid =
+        priceText !== "" &&
+        quantityText !== "" &&
+        Number.isFinite(price) &&
+        price > 0 &&
+        price <= 1000000 &&
+        Number.isInteger(quantity) &&
+        quantity >= 1 &&
+        quantity <= 100000;
+
+      if (!valid) {
+        totalDisplay.textContent = "R$ 0,00";
+        return 0;
+      }
+
+      const totalInCents = Math.round(price * 100) * quantity;
+      const total = totalInCents / 100;
+
+      totalDisplay.textContent = money(total);
       return total;
     }
 
+    // Atualiza o total enquanto os campos são digitados ou alterados.
     $("unitPrice").addEventListener("input", calculateTotal);
+    $("unitPrice").addEventListener("change", calculateTotal);
     $("quantity").addEventListener("input", calculateTotal);
+    $("quantity").addEventListener("change", calculateTotal);
 
     async function loadParticipants() {
       const { data, error } = await db
@@ -312,10 +539,14 @@
     }
 
     function render() {
-      const total = participants.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+      const total = participants.reduce(
+        (sum, p) => sum + Number(p.amount || 0), 0
+      );
+
       const received = participants
         .filter(p => p.paid)
         .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
       const pending = participants
         .filter(p => !p.paid)
         .reduce((sum, p) => sum + Number(p.amount || 0), 0);
@@ -326,6 +557,7 @@
       $("pendingAmount").textContent = money(pending);
 
       const term = $("search").value.trim().toLocaleLowerCase("pt-BR");
+
       const filtered = participants.filter(p =>
         String(p.name || "").toLocaleLowerCase("pt-BR").includes(term) ||
         String(p.phone || "").toLocaleLowerCase("pt-BR").includes(term)
@@ -334,12 +566,13 @@
       const list = $("participantList");
       list.replaceChildren();
 
-      if (!filtered.length) {
+      if (filtered.length === 0) {
         const empty = document.createElement("p");
         empty.className = "muted";
         empty.textContent = participants.length
           ? "Nenhum participante encontrado."
           : "Nenhum participante cadastrado.";
+
         list.appendChild(empty);
         return;
       }
@@ -357,34 +590,47 @@
         status.textContent = p.paid ? "Pago" : "Pendente";
         item.appendChild(status);
 
+        const quantity = Number(p.quantity || 1);
+
         const details = document.createElement("div");
         details.className = "details";
         details.textContent =
           "Telefone: " + (p.phone || "Não informado") +
           " · Valor total: " + money(p.amount) +
-          " · Participações: " + Number(p.quantity || 1) +
+          " · Participações: " + quantity +
           " · Chances no sorteio quando pago: " +
-          (p.paid ? Number(p.quantity || 1) : 0);
+          (p.paid ? quantity : 0);
+
         item.appendChild(details);
 
         const paymentButton = document.createElement("button");
         paymentButton.className = "small secondary";
-        paymentButton.textContent = p.paid ? "Marcar pendente" : "Marcar pago";
-        paymentButton.addEventListener("click", () => updatePaid(p.id, !p.paid));
+        paymentButton.textContent = p.paid
+          ? "Marcar pendente"
+          : "Marcar pago";
+
+        paymentButton.addEventListener("click", () => {
+          updatePaid(p.id, !p.paid);
+        });
+
         item.appendChild(paymentButton);
 
         const deleteButton = document.createElement("button");
         deleteButton.className = "small danger";
         deleteButton.textContent = "Excluir";
-        deleteButton.addEventListener("click", () => deleteParticipant(p.id, p.name));
-        item.appendChild(deleteButton);
 
+        deleteButton.addEventListener("click", () => {
+          deleteParticipant(p.id, p.name);
+        });
+
+        item.appendChild(deleteButton);
         list.appendChild(item);
       });
     }
 
     async function updatePaid(id, paid) {
       if (busy) return;
+
       clearMessage();
       setBusy(true);
 
@@ -407,13 +653,22 @@
     }
 
     async function deleteParticipant(id, name) {
-      if (busy || !confirm("Deseja excluir o cadastro de " + name + "?")) return;
+      if (
+        busy ||
+        !confirm("Deseja excluir o cadastro de " + name + "?")
+      ) {
+        return;
+      }
 
       clearMessage();
       setBusy(true);
 
       try {
-        const { error } = await db.from("participants").delete().eq("id", id);
+        const { error } = await db
+          .from("participants")
+          .delete()
+          .eq("id", id);
+
         if (error) throw error;
 
         $("drawResult").replaceChildren();
@@ -428,7 +683,9 @@
 
     $("loginForm").addEventListener("submit", async event => {
       event.preventDefault();
+
       if (busy) return;
+
       clearMessage();
       setBusy(true);
 
@@ -443,7 +700,9 @@
         showApp();
         await loadParticipants();
       } catch (error) {
-        showMessage("Falha no login. Confira seus dados e a confirmação do e-mail.");
+        showMessage(
+          "Falha no login. Confira o e-mail, a senha e a confirmação do e-mail."
+        );
       } finally {
         setBusy(false);
       }
@@ -451,14 +710,19 @@
 
     $("logoutButton").addEventListener("click", async () => {
       if (busy) return;
+
       setBusy(true);
 
       try {
-        await db.auth.signOut();
+        const { error } = await db.auth.signOut();
+        if (error) throw error;
+
         participants = [];
         $("drawResult").replaceChildren();
         showLogin();
         clearMessage();
+      } catch (error) {
+        showMessage("Não foi possível sair da conta.");
       } finally {
         setBusy(false);
       }
@@ -466,7 +730,9 @@
 
     $("participantForm").addEventListener("submit", async event => {
       event.preventDefault();
+
       if (busy) return;
+
       clearMessage();
 
       const name = $("name").value.trim();
@@ -475,13 +741,22 @@
       const quantity = Number($("quantity").value);
       const paid = $("paidInput").checked;
 
-      if (!name || !Number.isFinite(unitPrice) || unitPrice <= 0 ||
-          !Number.isInteger(quantity) || quantity < 1 || quantity > 100000) {
+      if (
+        !name ||
+        $("unitPrice").value.trim() === "" ||
+        $("quantity").value.trim() === "" ||
+        !Number.isFinite(unitPrice) ||
+        unitPrice <= 0 ||
+        unitPrice > 1000000 ||
+        !Number.isInteger(quantity) ||
+        quantity < 1 ||
+        quantity > 100000
+      ) {
         showMessage("Confira o nome, o preço e a quantidade.");
         return;
       }
 
-      const amount = Math.round(unitPrice * 100) * quantity / 100;
+      const amount = calculateTotal();
 
       if (!Number.isFinite(amount) || amount <= 0) {
         showMessage("O valor total é inválido.");
@@ -491,9 +766,15 @@
       setBusy(true);
 
       try {
-        const { error } = await db.from("participants").insert({
-          name, phone, amount, quantity, paid
-        });
+        const { error } = await db
+          .from("participants")
+          .insert({
+            name,
+            phone,
+            amount,
+            quantity,
+            paid
+          });
 
         if (error) throw error;
 
@@ -501,10 +782,14 @@
         $("unitPrice").value = "10.00";
         $("quantity").value = "1";
         calculateTotal();
+
         $("drawResult").replaceChildren();
 
         await loadParticipants();
-        showMessage("Participante cadastrado. Total: " + money(amount), "success");
+        showMessage(
+          "Participante cadastrado. Total: " + money(amount),
+          "success"
+        );
       } catch (error) {
         showMessage("Erro ao cadastrar participante: " + error.message);
       } finally {
@@ -513,11 +798,24 @@
     });
 
     $("search").addEventListener("input", render);
-    $("refreshButton").addEventListener("click", loadParticipants);
+
+    $("refreshButton").addEventListener("click", async () => {
+      if (busy) return;
+
+      clearMessage();
+      setBusy(true);
+
+      try {
+        await loadParticipants();
+      } finally {
+        setBusy(false);
+      }
+    });
 
     // Sorteio ponderado: cada participação paga equivale a um bilhete.
     $("drawButton").addEventListener("click", () => {
       if (busy) return;
+
       clearMessage();
       $("drawResult").replaceChildren();
 
@@ -531,19 +829,21 @@
         (sum, p) => sum + Number(p.quantity), 0
       );
 
-      if (!totalChances) {
+      if (totalChances <= 0) {
         showMessage("Não há participações pagas para o sorteio.");
         return;
       }
 
-      // Escolhe um número inteiro entre 1 e o total de participações.
-      // O participante vencedor é aquele cujo intervalo contém esse número.
-      const winningTicket = Math.floor(Math.random() * totalChances);
+      const winningTicket = Math.floor(
+        Math.random() * totalChances
+      );
+
       let accumulated = 0;
       let winner = null;
 
       for (const participant of eligible) {
         accumulated += Number(participant.quantity);
+
         if (winningTicket < accumulated) {
           winner = participant;
           break;
@@ -572,26 +872,31 @@
     });
 
     async function start() {
-      const { data, error } = await db.auth.getSession();
+      try {
+        const { data, error } = await db.auth.getSession();
 
-      if (error) {
+        if (error) throw error;
+
+        if (data.session) {
+          showApp();
+          await loadParticipants();
+        } else {
+          showLogin();
+        }
+
+        db.auth.onAuthStateChange((_event, session) => {
+          if (!session) {
+            participants = [];
+            showLogin();
+          }
+        });
+      } catch (error) {
         showLogin();
-        showMessage("Não foi possível verificar sua sessão.");
-        return;
+        showMessage("Não foi possível verificar a sessão. Atualize a página.");
       }
-
-      if (data.session) {
-        showApp();
-        await loadParticipants();
-      } else {
-        showLogin();
-      }
-
-      db.auth.onAuthStateChange((_event, session) => {
-        if (!session) showLogin();
-      });
     }
 
+    // Exibe o valor inicial e inicia o sistema.
     calculateTotal();
     start();
   </script>
