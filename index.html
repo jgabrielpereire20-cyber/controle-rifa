@@ -1,904 +1,718 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#080b12">
-  <title>Controle da Rifa</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<title>Quiz - Escala de Glasgow</title>
 
-  <style>
-    :root {
-      --red: #ef233c;
-      --red-dark: #c1122f;
-      --blue: #2563eb;
-      --blue-light: #60a5fa;
-      --black: #080b12;
-      --card: #111827;
-      --card-light: #172033;
-      --text: #f8fafc;
-      --muted: #aab6ca;
-      --border: #2a3650;
-      --green: #22c55e;
-    }
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-    * {
-      box-sizing: border-box;
-    }
+body {
+    font-family: Arial, sans-serif;
+    background: #eef3f9;
+    color: #183153;
+    padding: 20px;
+}
 
-    body {
-      margin: 0;
-      background: var(--black);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
+.container {
+    max-width: 750px;
+    margin: 30px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 18px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.10);
+}
 
-    header {
-      background: linear-gradient(120deg, #111827, #172554);
-      border-bottom: 4px solid var(--red);
-      padding: 24px 18px;
+header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+header h1 {
+    color: #103d75;
+    font-size: 27px;
+    margin-bottom: 10px;
+}
+
+header p {
+    color: #63758b;
+    line-height: 1.5;
+}
+
+.info {
+    background: #eaf2ff;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.progress-container {
+    background: #dce5ef;
+    height: 10px;
+    border-radius: 20px;
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    width: 0%;
+    background: #1672c4;
+    transition: 0.3s;
+}
+
+#question-number {
+    color: #1672c4;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+#question {
+    font-size: 21px;
+    line-height: 1.4;
+    margin-bottom: 22px;
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.option {
+    background: #f4f7fb;
+    border: 2px solid #dce5ef;
+    border-radius: 10px;
+    padding: 15px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 16px;
+    transition: 0.2s;
+}
+
+.option:hover:not(:disabled) {
+    background: #e5efff;
+    border-color: #1672c4;
+}
+
+.option:disabled {
+    cursor: default;
+    opacity: 1;
+}
+
+.option.correct {
+    background: #d9f7e5;
+    border-color: #229653;
+    color: #176c39;
+}
+
+.option.wrong {
+    background: #ffe2e2;
+    border-color: #dc4545;
+    color: #a52626;
+}
+
+.feedback {
+    display: none;
+    padding: 17px;
+    margin-top: 20px;
+    border-radius: 10px;
+    line-height: 1.6;
+}
+
+.feedback.show {
+    display: block;
+}
+
+.feedback.good {
+    background: #e0f7e9;
+    border-left: 5px solid #229653;
+}
+
+.feedback.bad {
+    background: #fff0e0;
+    border-left: 5px solid #e69a28;
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+    gap: 10px;
+}
+
+button.action {
+    background: #125da5;
+    color: white;
+    border: none;
+    padding: 13px 22px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+button.action:hover {
+    background: #0c477e;
+}
+
+button.action:disabled {
+    background: #aab7c5;
+    cursor: not-allowed;
+}
+
+#result {
+    display: none;
+    text-align: center;
+}
+
+#result h2 {
+    color: #125da5;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.score {
+    font-size: 45px;
+    font-weight: bold;
+    color: #16864a;
+    margin: 20px;
+}
+
+.result-message {
+    background: #eaf2ff;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    line-height: 1.6;
+}
+
+footer {
+    text-align: center;
+    color: #8492a6;
+    font-size: 12px;
+    margin-top: 30px;
+}
+
+@media(max-width: 500px) {
+    .container {
+        padding: 20px;
+        margin: 10px auto;
     }
 
     header h1 {
-      margin: 0 0 6px;
-      font-size: 26px;
+        font-size: 23px;
     }
 
-    header p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
+    #question {
+        font-size: 18px;
     }
 
-    main {
-      width: min(100% - 24px, 900px);
-      margin: 20px auto;
+    .option {
+        font-size: 14px;
     }
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 16px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+    .buttons {
+        flex-direction: column;
     }
 
-    h2 {
-      font-size: 19px;
-      margin: 0 0 16px;
+    button.action {
+        width: 100%;
     }
-
-    label {
-      display: block;
-      font-size: 14px;
-      margin: 12px 0 6px;
-    }
-
-    input, button {
-      font: inherit;
-      width: 100%;
-      min-height: 45px;
-      border-radius: 10px;
-    }
-
-    input {
-      padding: 10px 12px;
-      border: 1px solid #3b4963;
-      background: #080b12;
-      color: var(--text);
-      outline: none;
-    }
-
-    input:focus {
-      border-color: var(--blue-light);
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, .25);
-    }
-
-    button {
-      border: 0;
-      padding: 11px 14px;
-      background: var(--red);
-      color: white;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 12px;
-      transition: background .15s;
-    }
-
-    button:hover {
-      background: var(--red-dark);
-    }
-
-    button:disabled {
-      opacity: .55;
-      cursor: wait;
-    }
-
-    button.secondary {
-      background: var(--blue);
-      color: white;
-    }
-
-    button.secondary:hover {
-      background: #1d4ed8;
-    }
-
-    button.danger {
-      background: #3f1420;
-      color: #fecdd3;
-      border: 1px solid #7f1d2d;
-    }
-
-    button.small {
-      width: auto;
-      min-height: 36px;
-      padding: 7px 10px;
-      font-size: 13px;
-      margin: 8px 6px 0 0;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .stat {
-      background: var(--card);
-      padding: 15px;
-      border: 1px solid var(--border);
-      border-top: 3px solid var(--blue);
-      border-radius: 14px;
-      overflow-wrap: anywhere;
-    }
-
-    .stat:nth-child(2) {
-      border-top-color: var(--red);
-    }
-
-    .stat:nth-child(3) {
-      border-top-color: var(--blue-light);
-    }
-
-    .stat:nth-child(4) {
-      border-top-color: #f87171;
-    }
-
-    .stat span {
-      color: var(--muted);
-      font-size: 12px;
-      display: block;
-    }
-
-    .stat strong {
-      font-size: 20px;
-      display: block;
-      margin-top: 7px;
-    }
-
-    .participant {
-      padding: 14px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .participant:last-child {
-      border-bottom: 0;
-    }
-
-    .details {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 6px;
-      line-height: 1.7;
-      overflow-wrap: anywhere;
-    }
-
-    .status {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 20px;
-      font-size: 12px;
-      margin-top: 7px;
-      font-weight: 700;
-    }
-
-    .paid {
-      background: #102b50;
-      color: #93c5fd;
-    }
-
-    .pending {
-      background: #451722;
-      color: #fda4af;
-    }
-
-    .message {
-      padding: 12px;
-      border-radius: 10px;
-      margin: 12px 0;
-      font-size: 14px;
-      overflow-wrap: anywhere;
-    }
-
-    .error {
-      background: #451722;
-      color: #fecdd3;
-      border: 1px solid #9f1239;
-    }
-
-    .success {
-      background: #102b50;
-      color: #bfdbfe;
-      border: 1px solid #1d4ed8;
-    }
-
-    .muted {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .total-preview {
-      background: #101f3d;
-      border: 1px solid var(--blue);
-      border-radius: 10px;
-      padding: 14px;
-      margin-top: 14px;
-      color: #dbeafe;
-    }
-
-    .total-preview strong {
-      display: block;
-      margin-top: 6px;
-      color: white;
-      font-size: 25px;
-    }
-
-    .check-line {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .check-line input {
-      width: 20px;
-      min-height: 20px;
-      accent-color: var(--red);
-    }
-
-    .check-line label {
-      margin: 12px 0;
-    }
-
-    .draw-result {
-      text-align: center;
-      padding: 20px 8px;
-    }
-
-    .draw-result strong {
-      font-size: 25px;
-      color: var(--blue-light);
-      display: block;
-      margin-top: 8px;
-      overflow-wrap: anywhere;
-    }
-
-    @media (min-width: 650px) {
-      .stats {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-      }
-
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0 14px;
-      }
-    }
-  </style>
+}
+</style>
 </head>
 
 <body>
-  <header>
-    <h1>🎟️ Controle da Rifa</h1>
-    <p>Participantes, pagamentos e sorteio</p>
-  </header>
 
-  <main>
-    <div id="message" class="hidden" role="status" aria-live="polite"></div>
+<div class="container">
 
-    <section id="loginSection" class="card">
-      <h2>Entrar no painel</h2>
-      <p class="muted">Use seu e-mail e sua senha cadastrados no Supabase.</p>
+<header>
+    <h1>🧠 Escala de Glasgow</h1>
+    <p>Teste seus conhecimentos sobre a avaliação do nível de consciência.</p>
+</header>
 
-      <form id="loginForm">
-        <label for="email">E-mail</label>
-        <input id="email" type="email" autocomplete="username" required>
+<div class="info">
+    📚 Quiz de aprendizagem | 20 perguntas
+</div>
 
-        <label for="password">Senha</label>
-        <input id="password" type="password"
-          autocomplete="current-password" required>
+<div id="quiz">
 
-        <button id="loginButton" type="submit">Entrar</button>
-      </form>
-    </section>
+    <div class="progress-container">
+        <div class="progress" id="progress"></div>
+    </div>
 
-    <section id="appSection" class="hidden">
-      <section class="card">
-        <button id="logoutButton" class="secondary" type="button">
-          Sair da conta
+    <p id="question-number"></p>
+
+    <h2 id="question"></h2>
+
+    <div class="options" id="options"></div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="buttons">
+        <button class="action" id="next" disabled onclick="nextQuestion()">
+            Próxima pergunta →
         </button>
-      </section>
-
-      <div class="stats">
-        <div class="stat">
-          <span>Participantes</span>
-          <strong id="totalPeople">0</strong>
-        </div>
-
-        <div class="stat">
-          <span>Valor cadastrado</span>
-          <strong id="totalAmount">R$ 0,00</strong>
-        </div>
-
-        <div class="stat">
-          <span>Total recebido</span>
-          <strong id="paidAmount">R$ 0,00</strong>
-        </div>
-
-        <div class="stat">
-          <span>Total pendente</span>
-          <strong id="pendingAmount">R$ 0,00</strong>
-        </div>
-      </div>
-
-      <section class="card">
-        <h2>Cadastrar participante</h2>
-
-        <form id="participantForm">
-          <label for="name">Nome completo</label>
-          <input id="name" maxlength="120" required
-            placeholder="Nome do participante">
-
-          <label for="phone">Telefone (opcional)</label>
-          <input id="phone" type="tel" maxlength="30"
-            placeholder="Telefone para contato">
-
-          <div class="form-grid">
-            <div>
-              <label for="unitPrice">Preço de cada participação (R$)</label>
-              <input id="unitPrice" type="number"
-                min="0.01" max="1000000" step="0.01"
-                value="10.00" required>
-            </div>
-
-            <div>
-              <label for="quantity">Quantidade de participações</label>
-              <input id="quantity" type="number"
-                min="1" max="100000" step="1"
-                value="1" required>
-            </div>
-          </div>
-
-          <div class="total-preview">
-            Valor total da compra:
-            <strong id="calculatedTotal">R$ 10,00</strong>
-          </div>
-
-          <div class="check-line">
-            <input id="paidInput" type="checkbox">
-            <label for="paidInput">Pagamento já realizado</label>
-          </div>
-
-          <button id="saveButton" type="submit">
-            Cadastrar participante
-          </button>
-        </form>
-      </section>
-
-      <section class="card">
-        <h2>Participantes cadastrados</h2>
-
-        <label for="search">Pesquisar por nome ou telefone</label>
-        <input id="search" type="search"
-          placeholder="Digite para pesquisar">
-
-        <div id="participantList" aria-live="polite"></div>
-
-        <button id="refreshButton" class="secondary" type="button">
-          Atualizar lista
-        </button>
-      </section>
-
-      <section class="card">
-        <h2>Sorteio por nome</h2>
-
-        <p class="muted">
-          Cada participação paga vale uma chance. Quem tiver mais
-          participações pagas terá mais chances de ganhar.
-        </p>
-
-        <button id="drawButton" type="button">Sortear nome</button>
-        <div id="drawResult" class="draw-result"></div>
-      </section>
-    </section>
-  </main>
-
-  <script>
-    "use strict";
-
-    const SUPABASE_URL = "https://isffremdesipluzzlgul.supabase.co";
-    const SUPABASE_KEY =
-      "sb_publishable_zHTe78sOa4RSk684gqQFrw_A2xKkhAX";
-
-    const db = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-
-    const $ = id => document.getElementById(id);
-
-    let participants = [];
-    let busy = false;
-
-    function money(value) {
-      return Number(value || 0).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      });
-    }
-
-    function showMessage(text, type = "error") {
-      $("message").textContent = text;
-      $("message").className = "message " + type;
-    }
-
-    function clearMessage() {
-      $("message").textContent = "";
-      $("message").className = "hidden";
-    }
-
-    function setBusy(value) {
-      busy = value;
-
-      document.querySelectorAll("button").forEach(button => {
-        button.disabled = value;
-      });
-    }
-
-    function showLogin() {
-      $("loginSection").classList.remove("hidden");
-      $("appSection").classList.add("hidden");
-    }
-
-    function showApp() {
-      $("loginSection").classList.add("hidden");
-      $("appSection").classList.remove("hidden");
-    }
-
-    // Calcula o preço unitário multiplicado pela quantidade.
-    function calculateTotal() {
-      const priceInput = $("unitPrice");
-      const quantityInput = $("quantity");
-      const totalDisplay = $("calculatedTotal");
-
-      const priceText = priceInput.value.trim();
-      const quantityText = quantityInput.value.trim();
-
-      const price = Number(priceText);
-      const quantity = Number(quantityText);
-
-      const valid =
-        priceText !== "" &&
-        quantityText !== "" &&
-        Number.isFinite(price) &&
-        price > 0 &&
-        price <= 1000000 &&
-        Number.isInteger(quantity) &&
-        quantity >= 1 &&
-        quantity <= 100000;
-
-      if (!valid) {
-        totalDisplay.textContent = "R$ 0,00";
-        return 0;
-      }
-
-      const totalInCents = Math.round(price * 100) * quantity;
-      const total = totalInCents / 100;
-
-      totalDisplay.textContent = money(total);
-      return total;
-    }
-
-    // Atualiza o total enquanto os campos são digitados ou alterados.
-    $("unitPrice").addEventListener("input", calculateTotal);
-    $("unitPrice").addEventListener("change", calculateTotal);
-    $("quantity").addEventListener("input", calculateTotal);
-    $("quantity").addEventListener("change", calculateTotal);
-
-    async function loadParticipants() {
-      const { data, error } = await db
-        .from("participants")
-        .select("id,name,phone,amount,quantity,paid,created_at")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        showMessage("Erro ao carregar participantes: " + error.message);
-        return;
-      }
-
-      participants = data || [];
-      render();
-    }
-
-    function render() {
-      const total = participants.reduce(
-        (sum, p) => sum + Number(p.amount || 0), 0
-      );
-
-      const received = participants
-        .filter(p => p.paid)
-        .reduce((sum, p) => sum + Number(p.amount || 0), 0);
-
-      const pending = participants
-        .filter(p => !p.paid)
-        .reduce((sum, p) => sum + Number(p.amount || 0), 0);
-
-      $("totalPeople").textContent = participants.length;
-      $("totalAmount").textContent = money(total);
-      $("paidAmount").textContent = money(received);
-      $("pendingAmount").textContent = money(pending);
-
-      const term = $("search").value.trim().toLocaleLowerCase("pt-BR");
-
-      const filtered = participants.filter(p =>
-        String(p.name || "").toLocaleLowerCase("pt-BR").includes(term) ||
-        String(p.phone || "").toLocaleLowerCase("pt-BR").includes(term)
-      );
-
-      const list = $("participantList");
-      list.replaceChildren();
-
-      if (filtered.length === 0) {
-        const empty = document.createElement("p");
-        empty.className = "muted";
-        empty.textContent = participants.length
-          ? "Nenhum participante encontrado."
-          : "Nenhum participante cadastrado.";
-
-        list.appendChild(empty);
-        return;
-      }
-
-      filtered.forEach(p => {
-        const item = document.createElement("div");
-        item.className = "participant";
-
-        const name = document.createElement("strong");
-        name.textContent = p.name;
-        item.appendChild(name);
-
-        const status = document.createElement("div");
-        status.className = "status " + (p.paid ? "paid" : "pending");
-        status.textContent = p.paid ? "Pago" : "Pendente";
-        item.appendChild(status);
-
-        const quantity = Number(p.quantity || 1);
-
-        const details = document.createElement("div");
-        details.className = "details";
-        details.textContent =
-          "Telefone: " + (p.phone || "Não informado") +
-          " · Valor total: " + money(p.amount) +
-          " · Participações: " + quantity +
-          " · Chances no sorteio quando pago: " +
-          (p.paid ? quantity : 0);
-
-        item.appendChild(details);
-
-        const paymentButton = document.createElement("button");
-        paymentButton.className = "small secondary";
-        paymentButton.textContent = p.paid
-          ? "Marcar pendente"
-          : "Marcar pago";
-
-        paymentButton.addEventListener("click", () => {
-          updatePaid(p.id, !p.paid);
-        });
-
-        item.appendChild(paymentButton);
-
-        const deleteButton = document.createElement("button");
-        deleteButton.className = "small danger";
-        deleteButton.textContent = "Excluir";
-
-        deleteButton.addEventListener("click", () => {
-          deleteParticipant(p.id, p.name);
-        });
-
-        item.appendChild(deleteButton);
-        list.appendChild(item);
-      });
-    }
-
-    async function updatePaid(id, paid) {
-      if (busy) return;
-
-      clearMessage();
-      setBusy(true);
-
-      try {
-        const { error } = await db
-          .from("participants")
-          .update({ paid })
-          .eq("id", id);
-
-        if (error) throw error;
-
-        $("drawResult").replaceChildren();
-        await loadParticipants();
-        showMessage("Pagamento atualizado.", "success");
-      } catch (error) {
-        showMessage("Não foi possível atualizar: " + error.message);
-      } finally {
-        setBusy(false);
-      }
-    }
-
-    async function deleteParticipant(id, name) {
-      if (
-        busy ||
-        !confirm("Deseja excluir o cadastro de " + name + "?")
-      ) {
-        return;
-      }
-
-      clearMessage();
-      setBusy(true);
-
-      try {
-        const { error } = await db
-          .from("participants")
-          .delete()
-          .eq("id", id);
-
-        if (error) throw error;
-
-        $("drawResult").replaceChildren();
-        await loadParticipants();
-        showMessage("Participante excluído.", "success");
-      } catch (error) {
-        showMessage("Não foi possível excluir: " + error.message);
-      } finally {
-        setBusy(false);
-      }
-    }
-
-    $("loginForm").addEventListener("submit", async event => {
-      event.preventDefault();
-
-      if (busy) return;
-
-      clearMessage();
-      setBusy(true);
-
-      try {
-        const { error } = await db.auth.signInWithPassword({
-          email: $("email").value.trim(),
-          password: $("password").value
-        });
-
-        if (error) throw error;
-
-        showApp();
-        await loadParticipants();
-      } catch (error) {
-        showMessage(
-          "Falha no login. Confira o e-mail, a senha e a confirmação do e-mail."
-        );
-      } finally {
-        setBusy(false);
-      }
+    </div>
+
+</div>
+
+<div id="result">
+
+    <h2>🎉 Quiz concluído!</h2>
+
+    <p>Sua pontuação final foi:</p>
+
+    <div class="score" id="score"></div>
+
+    <div class="result-message" id="message"></div>
+
+    <button class="action" onclick="restartQuiz()">
+        ↻ Refazer o quiz
+    </button>
+
+</div>
+
+<footer>
+    Material educativo sobre a Escala de Coma de Glasgow.
+</footer>
+
+</div>
+
+<script>
+
+const questions = [
+
+{
+q: "1. Qual é a principal finalidade da Escala de Coma de Glasgow?",
+a: [
+"Medir a pressão arterial do paciente.",
+"Avaliar o nível de consciência do paciente.",
+"Identificar a temperatura corporal.",
+"Avaliar exclusivamente a frequência cardíaca."
+],
+correct: 1,
+explanation: "A Escala de Glasgow avalia o nível de consciência por meio das respostas ocular, verbal e motora."
+},
+
+{
+q: "2. Quantos componentes são avaliados na Escala de Glasgow?",
+a: [
+"Dois componentes.",
+"Quatro componentes.",
+"Três componentes.",
+"Cinco componentes."
+],
+correct: 2,
+explanation: "São três componentes: abertura ocular (AO), resposta verbal (RV) e resposta motora (RM)."
+},
+
+{
+q: "3. Qual é a pontuação máxima da Escala de Glasgow apresentada na imagem?",
+a: [
+"10 pontos.",
+"12 pontos.",
+"14 pontos.",
+"15 pontos."
+],
+correct: 3,
+explanation: "A pontuação máxima é 15 pontos, representando a melhor resposta nos três componentes."
+},
+
+{
+q: "4. Qual é a pontuação mínima possível na Escala de Glasgow?",
+a: [
+"1 ponto.",
+"2 pontos.",
+"3 pontos.",
+"5 pontos."
+],
+correct: 2,
+explanation: "A pontuação mínima é 3 pontos: 1 na abertura ocular, 1 na resposta verbal e 1 na resposta motora."
+},
+
+{
+q: "5. Na abertura ocular, quantos pontos são atribuídos quando o paciente abre os olhos espontaneamente?",
+a: [
+"2 pontos.",
+"3 pontos.",
+"4 pontos.",
+"5 pontos."
+],
+correct: 2,
+explanation: "A abertura ocular espontânea recebe 4 pontos, sendo a maior pontuação desse componente."
+},
+
+{
+q: "6. Quando o paciente abre os olhos somente após ser chamado, qual é a pontuação?",
+a: [
+"1 ponto.",
+"2 pontos.",
+"3 pontos.",
+"4 pontos."
+],
+correct: 2,
+explanation: "Abrir os olhos em resposta à voz corresponde a 3 pontos na abertura ocular."
+},
+
+{
+q: "7. Quando o paciente abre os olhos apenas após um estímulo doloroso, qual é a pontuação?",
+a: [
+"2 pontos.",
+"3 pontos.",
+"4 pontos.",
+"5 pontos."
+],
+correct: 0,
+explanation: "A abertura ocular ao estímulo doloroso corresponde a 2 pontos."
+},
+
+{
+q: "8. O que significa receber 1 ponto na abertura ocular?",
+a: [
+"Abre os olhos espontaneamente.",
+"Abre os olhos quando chamado.",
+"Abre os olhos após estímulo doloroso.",
+"Não apresenta abertura ocular."
+],
+correct: 3,
+explanation: "A pontuação 1 significa que não há abertura ocular."
+},
+
+{
+q: "9. Na resposta verbal, qual é a pontuação máxima?",
+a: [
+"3 pontos.",
+"4 pontos.",
+"5 pontos.",
+"6 pontos."
+],
+correct: 2,
+explanation: "A resposta verbal pode atingir até 5 pontos, quando o paciente está orientado."
+},
+
+{
+q: "10. O que caracteriza uma resposta verbal orientada?",
+a: [
+"O paciente conversa normalmente e está orientado no tempo, lugar e pessoa.",
+"O paciente emite apenas sons incompreensíveis.",
+"O paciente apresenta palavras soltas sem sentido.",
+"O paciente não emite nenhuma resposta verbal."
+],
+correct: 0,
+explanation: "A resposta orientada recebe 5 pontos e representa uma comunicação adequada, com orientação no tempo, lugar e pessoa."
+},
+
+{
+q: "11. Quando o paciente conversa, mas apresenta desorientação, qual é a pontuação verbal?",
+a: [
+"2 pontos.",
+"3 pontos.",
+"4 pontos.",
+"5 pontos."
+],
+correct: 2,
+explanation: "A resposta verbal confusa recebe 4 pontos."
+},
+
+{
+q: "12. O que representa a resposta verbal de 3 pontos?",
+a: [
+"Conversa normalmente.",
+"Apresenta palavras inapropriadas.",
+"Emite sons incompreensíveis.",
+"Não emite sons."
+],
+correct: 1,
+explanation: "Palavras inapropriadas, soltas e sem sentido correspondem a 3 pontos."
+},
+
+{
+q: "13. Quando o paciente emite sons ou gemidos sem conseguir formar palavras compreensíveis, qual é a pontuação?",
+a: [
+"1 ponto.",
+"2 pontos.",
+"3 pontos.",
+"4 pontos."
+],
+correct: 1,
+explanation: "Sons incompreensíveis recebem 2 pontos na resposta verbal."
+},
+
+{
+q: "14. Na resposta verbal, o que significa receber 1 ponto?",
+a: [
+"Fala palavras inapropriadas.",
+"Conversa com confusão.",
+"Emite sons incompreensíveis.",
+"Não emite sons."
+],
+correct: 3,
+explanation: "A pontuação 1 significa ausência de resposta verbal."
+},
+
+{
+q: "15. Qual é a pontuação máxima da resposta motora?",
+a: [
+"3 pontos.",
+"4 pontos.",
+"5 pontos.",
+"6 pontos."
+],
+correct: 3,
+explanation: "A resposta motora recebe até 6 pontos, quando o paciente obedece a comandos."
+},
+
+{
+q: "16. O que significa obedecer a comandos na resposta motora?",
+a: [
+"O paciente realiza movimentos a partir de ordens.",
+"O paciente não apresenta movimentos.",
+"O paciente apenas emite sons.",
+"O paciente apresenta flexão anormal."
+],
+correct: 0,
+explanation: "Obedecer a comandos recebe 6 pontos, pois o paciente consegue realizar movimentos solicitados."
+},
+
+{
+q: "17. Qual é a diferença entre localizar a dor e o movimento de retirada?",
+a: [
+"São respostas exatamente iguais.",
+"Localizar a dor envolve mover-se para localizar ou afastar o estímulo; retirada é afastar o membro.",
+"Localizar a dor recebe menos pontos que a retirada.",
+"Ambas representam ausência de movimento."
+],
+correct: 1,
+explanation: "Localizar a dor recebe 5 pontos, enquanto o movimento de retirada recebe 4 pontos."
+},
+
+{
+q: "18. Qual pontuação representa a flexão anormal (decorticação)?",
+a: [
+"2 pontos.",
+"3 pontos.",
+"4 pontos.",
+"5 pontos."
+],
+correct: 1,
+explanation: "A flexão anormal recebe 3 pontos na resposta motora."
+},
+
+{
+q: "19. De acordo com a tabela da imagem, qual classificação corresponde a 9–12 pontos?",
+a: [
+"Normal.",
+"Disfunção leve.",
+"Disfunção moderada.",
+"Disfunção grave."
+],
+correct: 2,
+explanation: "A faixa de 9 a 12 pontos é classificada como disfunção moderada na tabela apresentada."
+},
+
+{
+q: "20. Segundo a tabela da imagem, qual classificação corresponde a uma pontuação de 3 a 8 pontos?",
+a: [
+"Normal.",
+"Disfunção leve.",
+"Disfunção moderada.",
+"Disfunção grave."
+],
+correct: 3,
+explanation: "A faixa de 3 a 8 pontos corresponde à disfunção grave na tabela apresentada."
+}
+
+];
+
+let current = 0;
+let points = 0;
+let answered = false;
+
+function loadQuestion() {
+
+    answered = false;
+
+    const q = questions[current];
+
+    document.getElementById("question-number").innerText =
+        "Pergunta " + (current + 1) + " de " + questions.length;
+
+    document.getElementById("question").innerText = q.q;
+
+    document.getElementById("progress").style.width =
+        ((current / questions.length) * 100) + "%";
+
+    document.getElementById("feedback").className = "feedback";
+    document.getElementById("feedback").innerHTML = "";
+
+    document.getElementById("next").disabled = true;
+
+    const options = document.getElementById("options");
+
+    options.innerHTML = "";
+
+    q.a.forEach((answer, index) => {
+
+        const button = document.createElement("button");
+
+        button.className = "option";
+
+        button.innerText =
+            String.fromCharCode(65 + index) + ") " + answer;
+
+        button.onclick = () => checkAnswer(index);
+
+        options.appendChild(button);
+
     });
 
-    $("logoutButton").addEventListener("click", async () => {
-      if (busy) return;
+}
 
-      setBusy(true);
+function checkAnswer(selected) {
 
-      try {
-        const { error } = await db.auth.signOut();
-        if (error) throw error;
+    if (answered) return;
 
-        participants = [];
-        $("drawResult").replaceChildren();
-        showLogin();
-        clearMessage();
-      } catch (error) {
-        showMessage("Não foi possível sair da conta.");
-      } finally {
-        setBusy(false);
-      }
-    });
+    answered = true;
 
-    $("participantForm").addEventListener("submit", async event => {
-      event.preventDefault();
+    const q = questions[current];
 
-      if (busy) return;
+    const buttons = document.querySelectorAll(".option");
 
-      clearMessage();
+    buttons.forEach((button, index) => {
 
-      const name = $("name").value.trim();
-      const phone = $("phone").value.trim() || null;
-      const unitPrice = Number($("unitPrice").value);
-      const quantity = Number($("quantity").value);
-      const paid = $("paidInput").checked;
+        button.disabled = true;
 
-      if (
-        !name ||
-        $("unitPrice").value.trim() === "" ||
-        $("quantity").value.trim() === "" ||
-        !Number.isFinite(unitPrice) ||
-        unitPrice <= 0 ||
-        unitPrice > 1000000 ||
-        !Number.isInteger(quantity) ||
-        quantity < 1 ||
-        quantity > 100000
-      ) {
-        showMessage("Confira o nome, o preço e a quantidade.");
-        return;
-      }
-
-      const amount = calculateTotal();
-
-      if (!Number.isFinite(amount) || amount <= 0) {
-        showMessage("O valor total é inválido.");
-        return;
-      }
-
-      setBusy(true);
-
-      try {
-        const { error } = await db
-          .from("participants")
-          .insert({
-            name,
-            phone,
-            amount,
-            quantity,
-            paid
-          });
-
-        if (error) throw error;
-
-        $("participantForm").reset();
-        $("unitPrice").value = "10.00";
-        $("quantity").value = "1";
-        calculateTotal();
-
-        $("drawResult").replaceChildren();
-
-        await loadParticipants();
-        showMessage(
-          "Participante cadastrado. Total: " + money(amount),
-          "success"
-        );
-      } catch (error) {
-        showMessage("Erro ao cadastrar participante: " + error.message);
-      } finally {
-        setBusy(false);
-      }
-    });
-
-    $("search").addEventListener("input", render);
-
-    $("refreshButton").addEventListener("click", async () => {
-      if (busy) return;
-
-      clearMessage();
-      setBusy(true);
-
-      try {
-        await loadParticipants();
-      } finally {
-        setBusy(false);
-      }
-    });
-
-    // Sorteio ponderado: cada participação paga equivale a um bilhete.
-    $("drawButton").addEventListener("click", () => {
-      if (busy) return;
-
-      clearMessage();
-      $("drawResult").replaceChildren();
-
-      const eligible = participants.filter(p =>
-        p.paid &&
-        Number.isInteger(Number(p.quantity)) &&
-        Number(p.quantity) > 0
-      );
-
-      const totalChances = eligible.reduce(
-        (sum, p) => sum + Number(p.quantity), 0
-      );
-
-      if (totalChances <= 0) {
-        showMessage("Não há participações pagas para o sorteio.");
-        return;
-      }
-
-      const winningTicket = Math.floor(
-        Math.random() * totalChances
-      );
-
-      let accumulated = 0;
-      let winner = null;
-
-      for (const participant of eligible) {
-        accumulated += Number(participant.quantity);
-
-        if (winningTicket < accumulated) {
-          winner = participant;
-          break;
-        }
-      }
-
-      if (!winner) {
-        showMessage("Não foi possível calcular o resultado. Tente novamente.");
-        return;
-      }
-
-      const title = document.createElement("span");
-      title.textContent = "🎉 Nome sorteado";
-
-      const name = document.createElement("strong");
-      name.textContent = winner.name;
-
-      const info = document.createElement("p");
-      info.className = "muted";
-      info.textContent =
-        "Participações pagas consideradas: " + totalChances +
-        ". O cadastro vencedor tem " + Number(winner.quantity) +
-        " participação(ões).";
-
-      $("drawResult").append(title, name, info);
-    });
-
-    async function start() {
-      try {
-        const { data, error } = await db.auth.getSession();
-
-        if (error) throw error;
-
-        if (data.session) {
-          showApp();
-          await loadParticipants();
-        } else {
-          showLogin();
+        if (index === q.correct) {
+            button.classList.add("correct");
         }
 
-        db.auth.onAuthStateChange((_event, session) => {
-          if (!session) {
-            participants = [];
-            showLogin();
-          }
-        });
-      } catch (error) {
-        showLogin();
-        showMessage("Não foi possível verificar a sessão. Atualize a página.");
-      }
+        if (index === selected && selected !== q.correct) {
+            button.classList.add("wrong");
+        }
+
+    });
+
+    const feedback = document.getElementById("feedback");
+
+    if (selected === q.correct) {
+
+        points++;
+
+        feedback.className = "feedback show good";
+
+        feedback.innerHTML =
+            "✅ <strong>Resposta correta!</strong><br>" +
+            q.explanation;
+
+    } else {
+
+        feedback.className = "feedback show bad";
+
+        feedback.innerHTML =
+            "❌ <strong>Resposta incorreta!</strong><br>" +
+            "A alternativa correta é: <strong>" +
+            q.a[q.correct] + "</strong><br><br>" +
+            q.explanation;
+
     }
 
-    // Exibe o valor inicial e inicia o sistema.
-    calculateTotal();
-    start();
-  </script>
+    document.getElementById("next").disabled = false;
+
+    if (current === questions.length - 1) {
+
+        document.getElementById("next").innerText =
+            "Ver resultado";
+
+    }
+
+}
+
+function nextQuestion() {
+
+    if (!answered) return;
+
+    current++;
+
+    if (current < questions.length) {
+
+        document.getElementById("next").innerText =
+            "Próxima pergunta →";
+
+        loadQuestion();
+
+    } else {
+
+        showResult();
+
+    }
+
+}
+
+function showResult() {
+
+    document.getElementById("quiz").style.display = "none";
+
+    document.getElementById("result").style.display = "block";
+
+    document.getElementById("progress").style.width = "100%";
+
+    document.getElementById("score").innerText =
+        points + " / " + questions.length;
+
+    let message = "";
+
+    if (points >= 18) {
+
+        message = "🏆 Excelente! Você demonstrou um ótimo conhecimento sobre a Escala de Glasgow.";
+
+    } else if (points >= 14) {
+
+        message = "👏 Muito bom! Você compreendeu boa parte do conteúdo. Revise alguns pontos para melhorar ainda mais.";
+
+    } else if (points >= 10) {
+
+        message = "📚 Bom esforço! Continue estudando os componentes e as pontuações da escala.";
+
+    } else {
+
+        message = "💡 Não desanime! Revise o material e tente novamente. A prática ajuda a compreender melhor o conteúdo.";
+
+    }
+
+    document.getElementById("message").innerHTML =
+        message +
+        "<br><br>Acertos: " + points +
+        "<br>Erros: " + (questions.length - points);
+
+}
+
+function restartQuiz() {
+
+    current = 0;
+    points = 0;
+    answered = false;
+
+    document.getElementById("quiz").style.display = "block";
+
+    document.getElementById("result").style.display = "none";
+
+    loadQuestion();
+
+}
+
+loadQuestion();
+
+</script>
+
 </body>
 </html>
